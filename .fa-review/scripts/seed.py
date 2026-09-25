@@ -51,6 +51,12 @@ if demo:
     call('POST', '/api/user/manage', {'id': demo['id'], 'action': 'add_quota',
                                       'mode': 'add', 'value': 2500000}, auth)
 
+# Session 5: one channel so the pricing and model pages list models.
+call('POST', '/api/channel/', {'mode': 'single', 'channel': {
+    'name': 'demo-openai', 'type': 1, 'key': 'sk-demo-not-real', 'base_url': '',
+    'models': 'gpt-4o,claude-sonnet-4-5,gemini-2.5-pro', 'group': 'default',
+    'status': 1}}, auth)
+
 # API keys: token.create audit events.
 call('POST', '/api/token/', {'name': 'demo-key', 'remain_quota': 3500000,
                              'expired_time': -1, 'unlimited_quota': False}, auth)
@@ -121,7 +127,47 @@ for log_type, other, created_at in legacy:
         (created_at, log_type, 'legacy row', 'admin', '203.0.113.7',
          json.dumps(other)))
 con.commit()
+
+# Session 5: hourly dashboard data across a year boundary (2025-12-27 to
+# 2026-01-03) and across Nowruz (2026-03-15 to 2026-03-23, 1404/12/24 to
+# 1405/01/03), in UTC, plus one consume log in each period.
+import calendar
+import datetime
+
+
+def utc(y, m, d, h=0):
+    return calendar.timegm(datetime.datetime(y, m, d, h).timetuple())
+
+
+models = [('gpt-4o', 1.0), ('claude-sonnet-4-5', 1.6), ('gemini-2.5-pro', 0.7)]
+for start, days in ((utc(2025, 12, 27), 8), (utc(2026, 3, 15), 9)):
+    for day in range(days):
+        for hour in (3, 9, 15, 21):
+            ts = start + day * 86400 + hour * 3600
+            for index, (model, factor) in enumerate(models):
+                count = 4 + (day * 3 + hour + index * 5) % 11
+                quota = int(count * 9000 * factor)
+                for user_id, username in ((1, 'admin'), (2, 'demo-user')):
+                    con.execute(
+                        'INSERT INTO quota_data (user_id, username, model_name, '
+                        'created_at, use_group, token_id, channel_id, node_name, '
+                        'token_used, count, quota) VALUES (?, ?, ?, ?, ?, 1, 1, "", ?, ?, ?)',
+                        (user_id, username, model, ts, 'default', count * 1500,
+                         count, quota // user_id))
+for created_at in (utc(2025, 12, 31, 22), utc(2026, 3, 21, 1)):
+    con.execute(
+        'INSERT INTO logs (user_id, created_at, type, content, username, '
+        'token_name, model_name, quota, prompt_tokens, completion_tokens, '
+        'use_time, is_stream, channel_id, token_id, "group", ip, other) '
+        'VALUES (1, ?, 2, "", "admin", "demo-key", "gpt-4o", 5200, 1400, 420, '
+        '4, 1, 1, 1, "default", "203.0.113.7", ?)',
+        (created_at, json.dumps({'model_ratio': 1.25, 'completion_ratio': 4,
+                                 'group_ratio': 1, 'frt': 700})))
+con.commit()
 con.close()
 
+if len(sys.argv) > 3 and sys.argv[3] == 'en':
+    print('SEED_DONE')
+    sys.exit(0)
 call('PUT', '/api/user/self', {'language': 'fa'}, auth)
 print('SEED_DONE')

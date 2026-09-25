@@ -68,9 +68,14 @@ const HA_WORDS = new Set([
   'اژدها',
 ])
 const HA_SUFFIXES = ['هایی', 'های', 'ها']
+// Letters that never join to the next letter. After them, the plural ها is
+// written directly (کلیدها), because a ZWNJ there has no visible effect.
+const NON_JOINING = 'اآأإدذرزژوؤ'
+// Comparatives written joined, as the Academy of Persian Language allows.
+const JOINED_COMPARATIVE_STEMS = 'بیش|کم|به'
 // Common adjectives whose comparative/superlative is written joined by mistake.
 const COMPARATIVE_JOINED = new RegExp(
-  '^(بیش|کم|به|سریع|بزرگ|کوچک|جدید|تازه|قدیمی|مهم|ساده|دقیق|امن|قوی|ارزان|گران|آسان|سخت|طولانی|کوتاه|پایین|بالا|زیاد|دور|نزدیک|سبک|سنگین)(ترین|تری|تر)$'
+  '^(سریع|بزرگ|کوچک|جدید|تازه|قدیمی|مهم|ساده|دقیق|امن|قوی|ارزان|گران|آسان|سخت|طولانی|کوتاه|پایین|بالا|زیاد|دور|نزدیک|سبک|سنگین)(ترین|تری|تر)$'
 )
 
 const TEXT_RULES = [
@@ -130,12 +135,27 @@ const TEXT_RULES = [
   {
     id: 'plural-space',
     pattern: new RegExp(`${P}\\s+(ها|های|هایی)(?![${LETTER}${ZWNJ}])`),
-    message: 'space before the plural ها; use ZWNJ',
+    message:
+      'space before the plural ها; use ZWNJ, or nothing after a non-joining letter',
+  },
+  {
+    id: 'plural-zwnj-after-non-joining',
+    pattern: new RegExp(
+      `[${NON_JOINING}]${ZWNJ}(ها|های|هایی)(?![${LETTER}${ZWNJ}])`
+    ),
+    message: 'ZWNJ before ها after a non-joining letter; write it joined: کلیدها',
   },
   {
     id: 'comparative-space',
     pattern: new RegExp(`${P}\\s+(تر|ترین)(?![${LETTER}${ZWNJ}])`),
-    message: 'space before تر/ترین; use ZWNJ',
+    message: 'space before تر/ترین; use ZWNJ (بیشتر، کمتر، بهتر are joined)',
+  },
+  {
+    id: 'comparative-exception-zwnj',
+    pattern: new RegExp(
+      `(?<![${LETTER}${ZWNJ}])(${JOINED_COMPARATIVE_STEMS})${ZWNJ}(تر|ترین)(?![${LETTER}${ZWNJ}])`
+    ),
+    message: 'write بیشتر، کمتر، بهتر and their superlatives joined',
   },
 ]
 
@@ -149,7 +169,10 @@ function isJoinedMiVerb(word) {
 function isJoinedPlural(word) {
   if (HA_WORDS.has(word)) return false
   return HA_SUFFIXES.some(
-    (suffix) => word.endsWith(suffix) && word.length >= suffix.length + 2
+    (suffix) =>
+      word.endsWith(suffix) &&
+      word.length >= suffix.length + 2 &&
+      !NON_JOINING.includes(word.at(-suffix.length - 1))
   )
 }
 

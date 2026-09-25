@@ -46,8 +46,10 @@ const cases = [
   ['mi-prefix-joined', 'Sign in', 'وارد میشوید'],
   ['plural-space', 'Sign in', 'حساب ها'],
   ['plural-joined', 'Sign in', 'حسابها'],
+  ['plural-zwnj-after-non-joining', 'Sign in', 'کلید‌ها'],
   ['comparative-space', 'Learn more', 'اطلاعات بیش تر'],
-  ['comparative-joined', 'Learn more', 'اطلاعات بیشتر'],
+  ['comparative-joined', 'Learn more', 'پاسخ سریعتر'],
+  ['comparative-exception-zwnj', 'Learn more', 'اطلاعات بیش‌تر'],
   ['markup-mismatch', 'Go to page {{page}}', 'رفتن به صفحۀ {{number}}'],
   ['unknown-key', 'Not in English', 'ناشناخته'],
   ['empty-value', 'Sign in', ''],
@@ -90,9 +92,10 @@ afterAll(() => {
 describe('check-fa', () => {
   it('exits 0 for text that follows the typography rules', () => {
     const result = runCheck({
-      'Sign in': 'با کلید API وارد می‌شوید، سرویس‌ها «فعال» هستند؟',
+      'Sign in':
+        'با کلیدهای API وارد می‌شوید، سرویس‌ها و فیلترها «فعال» هستند؟',
       'Go to page {{page}}': 'رفتن به صفحۀ {{page}}',
-      'Learn more': 'اطلاعات بیش‌تر و میانگین نتیجه‌ها',
+      'Learn more': 'اطلاعات بیشتر، پاسخ سریع‌تر و میانگین نتیجه‌ها',
     })
 
     expect(result.stdout).toContain('no findings')

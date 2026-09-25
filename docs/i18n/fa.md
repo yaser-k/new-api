@@ -17,7 +17,7 @@ Use these terms consistently. If a new recurring term comes up, add it here firs
 | English | Persian | Reason |
 | --- | --- | --- |
 | token (unit of text counted by a model) | توکن | The established loanword in Persian AI writing; a translation such as «نشانه» is not recognized by users. |
-| API key | کلید API | «کلید» is the common Persian term for a credential; API stays English. |
+| API key | کلید API (plural: کلیدهای API) | «کلید» is the common Persian term for a credential; API stays English. |
 | token, when it means an API key (token group, token name) | کلید API / گروه کلید | Older strings call API keys "tokens". Translate by meaning so it is not confused with text tokens. The bare label "Token" stays «توکن» because several screens share it. |
 | access token | توکن دسترسی | Standard term in Persian security writing. |
 | channel | کانال | Short, familiar loanword; describes a configured upstream connection. |
@@ -76,15 +76,15 @@ Use these terms consistently. If a new recurring term comes up, add it here firs
 
 1. Use ZWNJ (U+200C, نیم‌فاصله) between a word and its affixes, never a space and never fully joined:
    - the verb prefixes می and نمی: می‌شود، نمی‌کند
-   - the plural ها: سرویس‌ها، کلید‌های API
-   - تر and ترین: بیش‌تر، تازه‌ترین
+   - the plural ها: سرویس‌ها، نتیجه‌ها. After a letter that never joins the next one (ا د ذ ر ز ژ و), write ها directly with no ZWNJ: کلیدها، فیلترها، رمزهای عبور.
+   - تر and ترین: تازه‌تر، سریع‌ترین. Exception, following the Academy of Persian Language: بیشتر، کمتر، بهتر and their superlatives (بیشترین، کمترین، بهترین) are written joined.
    ZWNJ is only valid between two Persian letters.
 2. Use Persian ی (U+06CC) and ک (U+06A9), never Arabic ي or ك.
 3. Never use Arabic-Indic digits (٠ to ٩). Digits written inside a translation use Persian digits (۰ to ۹), to match the Intl default; prefer words for small numbers (شش‌رقمی، یک دقیقه).
 4. Write ۀ as the single character U+06C0 (صفحۀ ورود), never ه followed by U+0654.
 5. Use Persian punctuation ، ؛ ؟ and « », with no space before the mark. Use … for an ellipsis.
 6. No em dash in Persian text.
-7. A Latin word or number next to Persian text gets exactly one space on each side: «ورود با GitHub». Never attach a Persian affix to a Latin word; rephrase instead (کلید‌های API, not APIها).
+7. A Latin word or number next to Persian text gets exactly one space on each side: «ورود با GitHub». Never attach a Persian affix to a Latin word; rephrase instead (کلیدهای API, not APIها).
 8. Keep i18next placeholders such as `{{count}}` and any markup exactly as in the English source.
 9. Write natural, concise product Persian, as a native speaker would write it, not a word-for-word translation.
 
@@ -105,6 +105,7 @@ Its ZWNJ checks for joined words are heuristics:
 
 - Joined می or نمی is detected on any word starting with them, except a short list of real words (میان، میزان، میانگین، میلیون and similar) kept in the script.
 - Joined plural ها is detected on any word ending in ها, های or هایی, except a short list of real words (تنها، نهایی and similar).
-- Joined تر and ترین are detected only on a list of common adjectives.
+- Joined plural ها after a non-joining letter (ا د ذ ر ز ژ و) is accepted, and a ZWNJ in that position is reported.
+- Joined تر and ترین are detected only on a list of common adjectives. بیش، کم and به are not on that list; a ZWNJ in بیش‌تر، کم‌تر or به‌تر is reported.
 
 Extend those lists in the script when a real word is flagged, and review joined comparatives by eye. Natural phrasing and correct terminology still need a human review.

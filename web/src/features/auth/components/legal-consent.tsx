@@ -64,7 +64,7 @@ export function LegalConsent({
       />
       <Label
         htmlFor='legal-consent'
-        className='text-muted-foreground items-start gap-1 text-left text-xs leading-5 font-normal'
+        className='text-muted-foreground items-start gap-1 text-start text-xs leading-5 font-normal'
       >
         <span>
           {t('I have read and agree to the')}{' '}
@@ -78,7 +78,7 @@ export function LegalConsent({
               {t('User Agreement')}
             </a>
           )}
-          {hasUserAgreement && hasPrivacyPolicy && ' and the '}
+          {hasUserAgreement && hasPrivacyPolicy && ` ${t('and')} `}
           {hasPrivacyPolicy && (
             <a
               href='/privacy-policy'

@@ -193,6 +193,7 @@ function renderDefinitionItem(
 export function renderMathBlock(node: MathBlockNode, key: string): ReactNode {
   return (
     <pre
+      dir='ltr'
       className='border-border bg-muted/40 my-4 overflow-x-auto rounded-lg border p-4 font-mono text-sm'
       key={key}
     >

@@ -1244,7 +1244,10 @@ export function DetailsDialog(props: DetailsDialogProps) {
             )}
             {Array.isArray(other.stream_status.errors) &&
               other.stream_status.errors.length > 0 && (
-                <pre className='bg-background/60 mt-1 max-h-32 overflow-y-auto rounded border p-2 font-mono text-[11px] leading-relaxed wrap-break-word whitespace-pre-wrap'>
+                <pre
+                  dir='ltr'
+                  className='bg-background/60 mt-1 max-h-32 overflow-y-auto rounded border p-2 font-mono text-[11px] leading-relaxed wrap-break-word whitespace-pre-wrap'
+                >
                   {other.stream_status.errors.join('\n')}
                 </pre>
               )}

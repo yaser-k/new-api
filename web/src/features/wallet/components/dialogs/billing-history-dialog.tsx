@@ -197,7 +197,10 @@ export function BillingHistoryDialog({
                       <div className='flex items-start justify-between gap-2'>
                         <div className='flex-1 space-y-1'>
                           <div className='flex min-w-0 items-center gap-2'>
-                            <code className='text-foreground truncate font-mono text-sm'>
+                            <code
+                              dir='ltr'
+                              className='text-foreground truncate font-mono text-sm'
+                            >
                               {record.trade_no}
                             </code>
                             <Button
@@ -300,7 +303,7 @@ export function BillingHistoryDialog({
                   disabled={page <= 1}
                   className='h-8 w-8 p-0'
                 >
-                  <ChevronLeft className='h-4 w-4' />
+                  <ChevronLeft className='h-4 w-4 rtl:rotate-180' />
                 </Button>
                 <div className='text-muted-foreground flex items-center gap-1 text-sm'>
                   <span className='font-medium'>{page}</span>
@@ -314,7 +317,7 @@ export function BillingHistoryDialog({
                   disabled={page >= totalPages}
                   className='h-8 w-8 p-0'
                 >
-                  <ChevronRight className='h-4 w-4' />
+                  <ChevronRight className='h-4 w-4 rtl:rotate-180' />
                 </Button>
               </div>
             </div>

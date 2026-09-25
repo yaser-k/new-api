@@ -126,7 +126,11 @@ export function ForgotPasswordForm({
           {isActive
             ? t('Resend ({{seconds}}s)', { seconds: secondsLeft })
             : t('Send reset email')}
-          {isLoading ? <Loader2 className='animate-spin' /> : <ArrowRight />}
+          {isLoading ? (
+            <Loader2 className='animate-spin' />
+          ) : (
+            <ArrowRight className='rtl:rotate-180' />
+          )}
         </Button>
 
         {isTurnstileEnabled && (

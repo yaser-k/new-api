@@ -322,7 +322,7 @@ export function CommonLogMobileCard<TData>(props: {
           )}
           <ChevronRight
             aria-hidden='true'
-            className='text-primary pointer-events-none absolute top-4 right-0 size-4'
+            className='text-primary pointer-events-none absolute end-0 top-4 size-4 rtl:rotate-180'
           />
         </div>
       )}

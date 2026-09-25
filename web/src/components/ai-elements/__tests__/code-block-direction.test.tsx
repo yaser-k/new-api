@@ -16,21 +16,26 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import * as React from 'react'
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it } from 'vitest'
 
-import { cn } from '@/lib/utils'
+import { CodeBlockFrame } from '../code-block'
 
-type BadgeCellProps = React.HTMLAttributes<HTMLDivElement>
+afterEach(() => {
+  cleanup()
+})
 
-export function BadgeCell({ className, ...props }: BadgeCellProps) {
-  return (
-    <div
-      data-slot='badge-cell'
-      className={cn(
-        '-ms-1.5 flex max-w-full min-w-0 items-center gap-1 overflow-hidden [&_[data-slot=status-badge]]:max-w-full [&_[data-slot=status-badge]]:min-w-0',
-        className
-      )}
-      {...props}
-    />
-  )
-}
+describe('CodeBlockFrame direction', () => {
+  it('keeps code left-to-right inside a right-to-left page', () => {
+    render(
+      <div dir='rtl'>
+        <CodeBlockFrame showToolbar title='bash'>
+          <pre>curl https://example.com/v1/chat/completions</pre>
+        </CodeBlockFrame>
+      </div>
+    )
+
+    const code = screen.getByText(/^curl /)
+    expect(code.closest('[dir]')).toHaveAttribute('dir', 'ltr')
+  })
+})

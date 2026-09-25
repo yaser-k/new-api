@@ -1,3 +1,4 @@
+import { useDirection } from '@base-ui/react/direction-provider'
 /*
 Copyright (C) 2023-2026 QuantumNous
 
@@ -297,6 +298,8 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>) {
     withFacetedRowModel = !manualFiltering,
     withExpandedRowModel = false,
   } = options
+  // Base UI's hook falls back to `ltr` outside a DirectionProvider.
+  const direction = useDirection()
 
   const columnVisibilityStorageKey =
     typeof options.columnVisibilityStorageKey === 'string'
@@ -403,6 +406,7 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>) {
     manualSorting,
     enableColumnResizing: options.enableColumnResizing,
     columnResizeMode: 'onChange',
+    columnResizeDirection: direction,
     onSortingChange,
     onColumnVisibilityChange,
     onColumnSizingChange,

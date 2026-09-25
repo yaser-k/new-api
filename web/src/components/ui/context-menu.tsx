@@ -159,7 +159,7 @@ function ContextMenuSubTrigger({
       <HugeiconsIcon
         icon={ArrowRight01Icon}
         strokeWidth={2}
-        className='ml-auto'
+        className='ms-auto rtl:rotate-180'
       />
     </ContextMenuPrimitive.SubmenuTrigger>
   )

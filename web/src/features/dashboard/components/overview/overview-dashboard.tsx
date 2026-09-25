@@ -270,7 +270,7 @@ function StartStepItem(props: {
           </span>
         </span>
         <ArrowRight
-          className='text-muted-foreground size-4 shrink-0'
+          className='text-muted-foreground size-4 shrink-0 rtl:rotate-180'
           aria-hidden='true'
         />
       </Link>
@@ -379,7 +379,7 @@ function RequestPreview(props: {
           <span className='bg-warning size-2 rounded-full' />
           <span className='bg-success size-2 rounded-full' />
         </div>
-        <div className='flex flex-col gap-1 overflow-hidden'>
+        <div dir='ltr' className='flex flex-col gap-1 overflow-hidden'>
           {previewLines.map((line) => (
             <code
               key={line}

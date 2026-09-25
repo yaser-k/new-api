@@ -73,7 +73,8 @@ export function processChartData(
   data: QuotaDataItem[],
   timeGranularity: TimeGranularity = 'day',
   t?: TFunction,
-  chartCornerRadius?: number
+  chartCornerRadius?: number,
+  locale?: string
 ): ProcessedChartData {
   const tt: TFunction = t ?? ((x) => x)
   const otherLabel = tt('Other')
@@ -231,7 +232,7 @@ export function processChartData(
 
   data.forEach((item) => {
     const timestamp = Number(item.created_at)
-    const timeKey = formatChartTime(timestamp, timeGranularity)
+    const timeKey = formatChartTime(timestamp, timeGranularity, locale)
     timeKeyStart.set(
       timeKey,
       Math.min(timeKeyStart.get(timeKey) ?? timestamp, timestamp)
@@ -296,7 +297,8 @@ export function processChartData(
     const padded = Array.from({ length: MAX_TREND_POINTS }, (_, i) =>
       formatChartTime(
         lastTime - (MAX_TREND_POINTS - 1 - i) * intervalSec,
-        timeGranularity
+        timeGranularity,
+        locale
       )
     )
     return padded
@@ -710,7 +712,8 @@ export function processUserChartData(
   data: QuotaDataItem[],
   timeGranularity: TimeGranularity = 'day',
   t?: TFunction,
-  limit = 10
+  limit = 10,
+  locale?: string
 ): ProcessedUserChartData {
   const tt: TFunction = t ?? ((x) => x)
   const { config } = getCurrencyDisplay()
@@ -787,7 +790,7 @@ export function processUserChartData(
 
   data.forEach((item) => {
     const ts = Number(item.created_at)
-    const timeKey = formatChartTime(ts, timeGranularity)
+    const timeKey = formatChartTime(ts, timeGranularity, locale)
     allTimePoints.set(timeKey, Math.min(allTimePoints.get(timeKey) ?? ts, ts))
     const user = item.username || 'unknown'
     if (!topUserSet.has(user)) return

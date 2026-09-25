@@ -1,126 +1,119 @@
-# Persian (fa) locale: session 2 (RTL fixes and second batch)
+# Persian (fa) locale: session 3 (RTL fixes, interface locale, third batch)
 
 Temporary review folder. Delete `.fa-review/` before any upstream PR.
 
 Branch: `feat/fa-locale`. `upstream/main` is still at `c2b7a9a` (fetched at the start of this session), so no merge was needed.
 
-Session 1 (foundation, first 397 keys) is described in the commit `b2720c9`. This file covers session 2.
+Session 1 (foundation, first 397 keys) is described in commit `b2720c9`; session 2 (RTL fixes, second batch of 399 keys) in commit `39b326f` (the previous version of this file). This file covers session 3.
 
 ## Decisions applied
 
 | # | Decision | Where it landed |
 | --- | --- | --- |
-| 1 | Persian web font: yes | Vazirmatn (`@fontsource-variable/vazirmatn`, SIL OFL 1.1), used for `html:lang(fa) body` and `.font-sans`. Code keeps `font-mono`. |
-| 2 | تر/ترین: Academy exceptions | بیشتر، کمتر، بهتر and their superlatives are written joined. Other comparatives keep ZWNJ. |
-| 3 | ZWNJ before ها after non-joining letters: no | کلیدها، فیلترها، رمزها. check-fa now reports a ZWNJ in that position. |
-| 4 | Digits inside strings: Persian | Unchanged (`PERSIAN_INTL_LOCALE = 'fa'`). |
-| 5 | Terminology: confirmed | `docs/i18n/fa.md` glossary unchanged (plural example updated to کلیدهای API). |
-| 6 | Order: RTL fixes first | Done in that order. |
-
-Rules changed first (`docs/i18n/fa.md`, `web/scripts/check-fa.mjs` and its test), then the 7 affected `fa.json` values were rewritten through the script.
+| 1 | Pass the interface locale at each call site | Wallet and top-up, usage logs, API keys, profile. The shared formatter defaults are unchanged. |
+| 2 | Leave `{{count}}` and interpolated numbers as they are | Not touched; no key changed in the seven required locales. |
+| 3 | Next batch: rest of the security page, notification settings, keys passed through variables | Done: 223 keys. |
+| 4 | 2FA step label is fixed elsewhere | `two-fa-setup-dialog.tsx` and the `Step` / `of 3:` keys were not touched. |
 
 ## Commits
 
 ```
-07e070d feat(i18n): relax fa spelling rules for joined plurals and comparatives
-759a31e feat(web): use the Vazirmatn font for Persian text
-c78c83f fix(web): fix right-to-left layout issues found with the Persian locale
-fa96f8b feat(i18n): translate the second Persian batch (399 keys)
-d8ee064 fix(web): keep the usage log date range in reading order in RTL
+f5296da fix(web): shape Persian text in monospace contexts with Vazirmatn
+f01c5af fix(web): format money and numbers in the interface language, fix the key quota cell in RTL
+776c03c test(web): resolve the stylesheet with import.meta.dirname in the monospace test
+551a8a3 feat(i18n): translate the third Persian batch (223 keys)
 ```
 
-## A. RTL fixes
+## A. Fixes
 
-| Issue | Fix | Regression test |
+| Issue | Cause and fix | Regression test |
 | --- | --- | --- |
-| Config drawer close button over the title | `ui/sheet.tsx` close button `right-3` → `end-3`; `ui/dialog.tsx` `right-2` → `end-2` | `components/ui/__tests__/rtl-layout.test.tsx` |
-| Chevrons and arrows don't flip | `rtl:rotate-180` (the convention already used in `ui/calendar.tsx`) on: data-table pagination (6), `ui/pagination`, `ui/breadcrumb`, dropdown and context submenu arrows, sidebar back chevron, nav-group and chat-presets collapsible chevrons (`rtl:not-group-data-[…]:rotate-180`, so open still points down), forgot-password submit, dashboard wallet and setup-step arrows, flow-chart separators, usage-log mobile card, wallet billing-history and check-in calendar pagers, API key Auto-order connector | `data-table/core/__tests__/pagination.test.tsx` (2 new cases) |
-| Code blocks need LTR | `dir="ltr"` on the shared `CodeBlockFrame` body, the dashboard curl preview, masked values, API URLs on the keys page, billing trade numbers, stream-error `<pre>`, math blocks | `ai-elements/__tests__/code-block-direction.test.tsx` |
-| Physical CSS classes | Logical classes in `features/auth/*` (text-start, logo `start-*`), `legal-consent`, `ui/sidebar` (inset `ms-*`, action and badge `end-*`, menu-sub `border-s`), `ui/badge`, `layout/footer`, `layout/public-header`, `layout/chat-presets-item`, data-table cells, card rows, disabled-row marker, mobile filter panel, static table numeric cells (`text-end`) | `rtl-layout.test.tsx`, `legal-consent.test.tsx` |
-| Data-table pinning and resizing | Pinned columns stick to `start-0` / `end-0` with mirrored shadows. Resizer on `end-0`; `useDataTable` passes Base UI's direction as TanStack `columnResizeDirection`; ArrowLeft widens in RTL | `data-table/core/__tests__/column-pinning.test.ts`, `column-resize-direction.test.tsx` |
-| `' and the '` in legal-consent | `t('and')` (existing key in all locales; English now reads "User Agreement and Privacy Policy.") | `features/auth/components/__tests__/legal-consent.test.tsx` |
-| Dashboard currency digits | Root cause was not a missing re-render: `formatQuota` passed no locale, so digits followed the **browser** locale, not the interface language. `formatQuota(quota, locale?)` now takes the interface locale; `SummaryCards` and `LogStatCards` pass `toIntlLocale(i18n.resolvedLanguage)` | `lib/__tests__/format-quota-locale.test.ts` (all 8 languages + invalid tag), `dashboard/components/overview/__tests__/summary-cards-locale.test.tsx` (en→fa and fa→en without reload) |
-| Usage-log date range reordered in RTL (found in this session's screenshots) | `dir="auto"` on the range labels | `usage-logs/components/__tests__/date-range-direction.test.tsx` |
+| A.1 Version label «نسخۀ نامشخص» renders spaced out (`font-mono`) | DejaVu Sans Mono, Menlo and Courier New have fixed-width Arabic glyphs, so a Persian fallback **after** the monospace families is never reached. `index.css` adds a face `Vazirmatn Persian Script` (the Vazirmatn Arabic file, `unicode-range` limited to the Arabic script and ZWNJ) and, for `html:lang(fa)`, puts it **first** in `--font-mono`. Persian letters and digits take Vazirmatn; Latin letters, digits and punctuation in versions, code and keys still use the monospace stack. One rule covers the `font-mono` utility and the preflight `code/kbd/pre/samp`, which both read `--font-mono`. | `src/styles/__tests__/persian-monospace.test.ts`: compiles `index.css` with Tailwind, then resolves which face renders each character under `lang=fa` and `lang=en` |
+| A.2 API key quota cell jumbled in RTL | The values grid flips in RTL but the values kept physical `text-left`/`text-right`, so remaining and used were pushed together in the middle of the cell (measured: «۵» at x 549–557 and «۲» at x 533–541 in a cell x 456–634) and read as one number. Now `text-start`/`text-end` (and `ms-1`). Each amount is in `<bdi dir="ltr">`, also in the shared `QuotaDetailsPopover`, because token-mode values such as `-1.5k` come from `toFixed` (no LRM) and their minus sign moved to the end in RTL. | `keys/components/__tests__/api-key-listing.test.tsx` (2 new cases; 5 assertions changed from physical to logical classes) |
+| A.3 Money and numbers follow the browser language | Components compute `toIntlLocale(i18n.resolvedLanguage \|\| i18n.language)` at render and pass it to `formatQuota`, `formatQuotaWithCurrency`, `formatCurrencyFromUSD`, `formatBillingCurrencyFromUSD`, `formatLocalCurrencyAmount`, `formatNumber`, `formatCompactNumber`; raw `toLocaleString()` became `formatNumber(…, locale)`. `formatLogQuota` and the wallet `formatCurrency` gained an optional `locale` (default unchanged). The redemption toast (a non-React hook) converts `i18next.resolvedLanguage` at call time. Files: wallet (stats, recharge, affiliate, subscription plans, transfer, payment confirm, billing history, Creem), usage logs (columns, mobile card, stats, cost, details/task/user-info dialogs), keys (quota cell), profile (header, check-in). The usage-log token pair `input / output` is isolated LTR so it keeps its order. | `lib/__tests__/format-quota-locale.test.ts` (+`formatLogQuota`, 8 languages + invalid tag), `wallet/lib/__tests__/format-currency-locale.test.ts` (same), and en→fa→en **without reload**: `wallet/components/__tests__/amount-locale.test.tsx`, `profile/components/__tests__/profile-header-locale.test.tsx`, `usage-logs/components/__tests__/cost-display.test.tsx`, `api-key-listing.test.tsx` |
+| A.4 Keys passed through variables | Scanned every string literal in the target features, `lib/roles.ts`, `lib/server-error-message.ts`, the secure-verification and Passkey modules, and the matching `static-keys.ts` sections, keeping the ones that are `en.json` keys missing from `fa.json`; each was checked at its call site. Translated in batch 3 (below). | n/a (translation) |
 
-Reuse: every fix changes the existing shared component (`Sheet`, `Dialog`, `DataTablePagination`, `CodeBlockFrame`, `useDataTable`, `formatQuota`, …); no new UI component was added.
+Fail-before evidence (the tests run against the code before each fix):
 
-Fail-before check: the new tests were copied into a worktree at `07e070d` (before the fixes) and run there: **15 failed, 13 passed** (the 13 are LTR/English baselines that must keep passing). The date-range test: 2 failed with the fix stashed, 2 passed with it.
+- A.1: `index.css` from `39b326f` → `1 failed | 2 passed` (the 2 are the Latin and English baselines); with the fix `3 passed`.
+- A.2 + A.3: all changed production files stashed → `13 failed | 65 passed (78)`: the 10 new tests plus 3 existing key-list assertions that now require logical classes. With the fixes: `78 passed`.
 
-Also fixed in touched files, to keep them lint-clean: `layout/components/footer.tsx` used array indexes as keys (now `column.title` / `link.href`). I reverted my change to `command-menu.tsx` instead, because that file has a pre-existing `import(no-cycle)` error that is out of scope.
+Also fixed in touched files to keep them lint-clean: the array-index key in `creem-products-section.tsx` (pre-existing), and a missing `locale` dependency in `checkin-calendar-card.tsx`.
 
-## B. Second translation batch
+Reuse: every change edits the existing component or formatter; no new UI component.
 
-- **399 keys** added; `fa.json` now has **796 keys**, 5982 fall back to English.
-- Scope: dashboard overview and model analytics (plus the dashboard stat-card config and range/chart constants), API keys (list, cells, create/edit drawer, delete dialogs, Auto group order, toasts, form validation), usage log list (columns, filters, stats, timing, model badge, mobile cards, date range), wallet and top-up (balance cards, add funds, redemption, referral program, transfer and payment-confirm dialogs, payment toasts), profile (header, language preferences, profile toasts), security (page headings, two-factor card/setup/disable, passkey card, change-password dialog, delete-account action).
-- Left out to stay within 300 to 400: usage-log detail dialogs and audit logs, drawing/task log columns and constants, dashboard flow and user analytics, model-analytics preferences dialog, subscription plans, billing history dialog, Creem/Waffo dialogs, CC Switch dialog, FluentRead toasts, notification settings tab, check-in calendar, sidebar-modules card, account bindings, access tokens, login sessions, privacy card.
-- Kept in English on purpose (they fall back): `RPM`, `TPM`, `Auto` (group name), `CC Switch`, `Waffo`, `ms` (it is glued to a Latin number as `123ms`).
-- Every key was translated after reading its call site. Examples of choices driven by the call site: "This will permanently delete API key" + name + ". This action cannot be undone." → «این کلید API برای همیشه حذف می‌شود:» + name + «. این کار برگشت‌پذیر نیست.»; "Token Name" in the log filter is the API key name → «نام کلید»; "Step" is followed by a number → «مرحلۀ».
-- check-fa false positive: «میله» (bar chart) added to the real words that start with می.
+## B. Third translation batch
 
-## C. Verification (commands and results, final tree `d8ee064`)
+- **223 keys** added; `fa.json` now has **1019 keys**, 5759 fall back to English.
+- Security page: account bindings with the email, Telegram and WeChat dialogs, access token card and dialog, login sessions (list, revoke and sign-out dialogs), privacy card, delete-account details, backup-code regeneration, change/set password validation.
+- Messages shown by the security flows, passed as variables: `server-error-message.ts` (2FA, Passkey, verification proof, Telegram binding, session limits), secure-verification method labels (`Linked account`, `Login session`, `Passkey`), Passkey registration errors, account-binding and password messages from `static-keys.ts`, role labels (`Super Admin`, `Guest`).
+- Notification settings card (profile): method, threshold, email, webhook, Bark, Gotify setup, preferences.
+- A.4 keys on pages translated earlier: `Change Password`, `Set Password` and its description, `Common Logs`, `Drawing Logs`, log types (`Top-up`, `Consume`, `Manage`, `Refund`, `Login`), `24 Hours`, dashboard balance status (`Healthy` → «کافی», `Low balance`), `Other` (chart bucket), dashboard tabs `Flow` and `User Analytics`, `Model Analytics Filters` and its description, API key statuses `Expired`, `Exhausted`, `Preferences` (also the dashboard chart-preferences button).
+- Deliberately left out (fall back): brand names (GitHub, Discord, Telegram, WeChat, LinuxDO, OIDC, OAuth, Bark, Gotify), URL placeholders, identifiers that the scan matched but that are not text (`default`, `off`, `token`, …), and `to confirm` (see question 2).
+- `Last active {{time}} · Expires {{expires}}`: the Persian value wraps both placeholders in FSI/PDI (U+2068 … U+2069). Without them the screenshot showed the expiry as `13:53 25-10-2026`; with them it reads `2026-10-25 13:55`.
+- Written through `add-missing-keys.mjs` (created, run, deleted; fa only), then `bun run i18n:sync` and `bun run i18n:check-fa`.
 
-All run from `web/` unless noted.
+## C. Verification (commands and results, final tree `551a8a3`)
+
+All from `web/` unless noted.
 
 | Command | Result |
 | --- | --- |
-| `git fetch upstream main` | `upstream/main` = `c2b7a9a`, 0 new commits; no merge needed |
-| `bun install` | 1202 packages installed; `bun add @fontsource-variable/vazirmatn` → 5.3.0 |
+| `git fetch upstream main` | `upstream/main` = `c2b7a9a`; no merge needed. `upstream` push URL set to `DISABLED`. |
+| `bun install` | `1 package installed` (node_modules was present; `@fontsource-variable/vazirmatn@5.3.0`) |
 | `bun run typecheck` | `tsgo -b`, exit 0 |
-| `bun run lint` | exit 1: **179 errors, 66 warnings**. `upstream/main` in a clean worktree: **182 errors, 66 warnings**. Errors present only on this branch: **none**. The 3 fewer are the `curly` fix in `sync-i18n.mjs` (session 1) and the two footer key fixes |
-| `bunx oxlint -c .oxlintrc.json <69 files changed vs upstream/main>` | exit 0, **0 errors**, 7 warnings (pre-existing: `no-danger` in footer, `prefer-string-starts-ends-with` in `sync-i18n.mjs`) |
-| `bun run test` | `Test Files 178 passed (178)`, `Tests 2195 passed (2195)`, exit 0 |
-| `bun run build` | exit 0 (generated CSS contains the `rtl:` rules, `.end-3{inset-inline-end:…}` and `:lang(fa) body{font-family:Vazirmatn Variable,sans-serif}`) |
-| `bun run i18n:sync` | exit 0. fa: `partial: true`, missingCount 5982, extras 0, untranslated 0. The other 7 locale files are byte-identical to `upstream/main` (`git diff --stat upstream/main -- web/src/i18n/locales/` lists only `fa.json`) |
-| `bun run i18n:check-fa` | `check-fa: 796 keys, no findings`, exit 0 |
-| `go build -o <scratch>/new-api .` (repo root) | exit 0, binary embeds the fresh `web/dist` |
+| `bun run lint` | exit 1: **178 errors, 66 warnings**. `upstream/main` in a clean worktree: **182 errors, 66 warnings**. Errors present only on this branch: **none** (compared by file and message). |
+| `bunx oxlint -c .oxlintrc.json <93 files changed vs upstream/main>` | exit 0, **0 errors**, 7 warnings, all pre-existing (`sync-i18n.mjs` style rules, `no-danger` in footer) |
+| `bun run test` | `Test Files 182 passed (182)`, `Tests 2224 passed (2224)`, exit 0 |
+| `bun run build` | exit 0; CSS contains `html:lang(fa){--font-mono:"Vazirmatn Persian Script", ui-monospace, …}` and the font URL resolves to `/static/font/vazirmatn-arabic-wght-normal.*.woff2` |
+| `bun run i18n:sync` | exit 0; fa `partial: true`, missingCount 5759, extras 0, untranslated 0 |
+| `bun run i18n:check-fa` | `check-fa: 1019 keys, no findings`, exit 0 |
+| `git diff --stat upstream/main -- web/src/i18n/locales/` | only `fa.json` (1023 insertions) |
+| `go build -o <scratch>/new-api .` (repo root) | exit 0, embeds the fresh `web/dist` |
 
 ### Running app
 
 ```
 SQLITE_PATH="<scratch>/app/one-api.db?_busy_timeout=30000" PORT=3300 <scratch>/new-api --log-dir <scratch>/app/logs
-GET  /api/setup  -> {"data":{"status":false,"root_init":false,"database_type":"sqlite"},"success":true}
-POST /api/setup  {"username":"admin",...} -> {"message":"系统初始化成功","success":true}
-POST /api/token/ (bearer access token from /api/user/login) -> {"success":true}   # one demo key
+GET  /api/setup -> {"data":{"status":false,"root_init":false,"database_type":"sqlite"},"success":true}
+POST /api/setup {"username":"admin",...} -> {"message":"系统初始化成功","success":true}
+POST /api/user/login -> access_token; POST /api/token/ (Bearer) x2 -> {"success":true}   # demo-key, unlimited-key
+PUT  /api/user/self {"language":"fa"} -> {"message":"Update successful","success":true}
 ```
 
-Playwright (global 1.56.1, Chromium at `/opt/pw-browsers`), browser locale `fa-IR`, empty storage:
+Demo data was written into the scratch SQLite file: `demo-key` used 1,000,000 of 3,500,000 quota, three consume logs, user used quota and request count.
+
+Playwright 1.56.1 (global), Chromium at `/opt/pw-browsers`, 1440×900, browser locale `fa-IR`:
 
 ```
-sign-in (browser fa-IR, empty storage): dir=rtl lang=fa bodyFont="Vazirmatn Variable", sans-serif
-after sign-in, Persian selected: dir=rtl lang=fa i18nextLng=fa
-dashboard first currency value (fa): ["‎$۰","‎$۲۰۰"]
-config drawer: close button x= 1005 .. 1033  title text x= 1325 .. 1416  overlap= false
-after switching language (language menu, no reload): dir=ltr lang=en bodyFont="Public Sans", sans-serif
-dashboard first currency value after switch: ["$0","$200"]
+fa page: dir=rtl lang=fa
+version label: text «نسخۀ نامشخص», fontFamily "Vazirmatn Persian Script", ui-monospace, …, face loaded: true
+quota cells (fa): «۵»@x626-634 | «۲»@x456-464 in cell x456-634      (remaining at the start edge, used at the end edge)
+quota cells (en): 5@x807-815 | 2@x977-985 in cell x807-985           (unchanged LTR layout)
+wallet numbers (fa): ‎$۲۰۰, ‎$۲٫۴۷, ۱٬۵۳۲, ‎$۰ …
+usage log row (fa): … ۱٬۲۵۰ / ۳۸۰ ‎$۰٫۰۰۸۴۲ …
+session line (fa): آخرین فعالیت: ⁨a few seconds ago⁩ · انقضا: ⁨2026-10-25 13:55⁩
 ```
 
-Note: after sign-in the account's saved language wins over the browser language (the language preference syncs to the server), so the script selects فارسی in the language menu when needed. One login round hit the login rate limiter (HTTP 429) after repeated test logins; restarting the local server cleared it.
+Screenshots (1440 wide):
+- replaced: `04-api-keys-rtl.png`, `06-usage-logs-rtl.png`, `07-wallet-rtl.png` (full page), `08-profile-rtl.png` (full page), `09-security-rtl.png` (the page scrolls inside the layout, so it was taken with a 2456 px viewport)
+- new: `13-topbar-version-rtl.png`, `14-api-keys-en.png`, `15-notification-settings-rtl.png`, `16-notification-gotify-rtl.png` (Gotify selected, not saved)
 
-Screenshots (1440×900 unless noted):
-- `01-sign-in-rtl.png`, `12-sign-in-mobile-rtl.png` (390 px)
-- `02-dashboard-overview-rtl.png` (full page), `03-dashboard-models-rtl.png` (full page)
-- `04-api-keys-rtl.png`, `05-api-key-drawer-rtl.png`
-- `06-usage-logs-rtl.png` (date range now reads start ~ end)
-- `07-wallet-rtl.png`, `08-profile-rtl.png`, `09-security-rtl.png` (full page)
-- `10-config-drawer-rtl.png` (close button on the left, title on the right)
-- `11-dashboard-after-switch.png` (English LTR right after switching, Latin digits)
+Note: after a server restart the earlier access token is rejected (`AUTH_UNAUTHORIZED`); the script logs in again before each language change.
 
 ## Remaining RTL and locale issues
 
-1. **Other quota/number callers still use the browser locale.** Only the dashboard (`SummaryCards`, `LogStatCards`) passes the interface locale. `formatQuota` / `formatCurrencyFromUSD` elsewhere (wallet, profile header, API key quota cell, usage logs, charts) still use the runtime default. With a Persian browser and English UI they show Persian digits, and vice versa. See open question 1.
-2. **API key quota cell** renders its parts as `۵ / ۰ / x` in RTL (row text), which looks jumbled in `04-api-keys-rtl.png`. Needs a closer look at `api-key-quota-cell.tsx` layout.
-3. **Numbers built with template strings stay Latin**: `{{count}}` interpolations, `شناسۀ کاربر 1`, invite count `0`, `Setup progress: 1/3`, the setup-step numbers (shown as `.1` in RTL), chart axes (VChart), `مجموع: 0.00$` in the model charts.
-4. **2FA setup step label** (`two-fa-setup-dialog.tsx`) renders `{t('Step')}{n}{t('of 3:')}{label}` with no spaces in every language ("Step1of 3:Scan QR Code"). Upstream bug; the fix is a single interpolated key.
-5. **Keys passed as variables are not found by a `t('…')` scan**, so some visible strings on translated pages are still English: "Change Password"/"Set Password" and its description on the security page, "Healthy" on the dashboard, "Common Logs", "Tokens" column, "Preferences", "User Analytics", "Flow", "Root User"/"Super Admin". Next batch should also scan constants and conditional keys.
-6. **English text inside RTL containers**: untranslated English sentences still show their full stop on the left (".when the scheduled…" on the profile page); LTR labels truncated with an ellipsis lose their start ("…ple Large-font" in the theme presets). `dir="auto"` on those elements would help.
-7. **`rtl:` in Tailwind v4 also matches `:lang(fa)`.** A Persian user who forces LTR in the config drawer still gets mirrored icons and `rtl:` shadows. Minor, but worth knowing.
-8. **Not converted yet:** `mr-2`/`ml-2` on spinner icons in buttons across features, `text-left` in the usage-log details button, the other 13 `<pre>` blocks outside the pages touched here (channels, settings, playground), the sign-in button icon (not mirrored), carousel arrows (Embla needs a `direction` option).
-9. **Theme font mismatch (pre-existing, not RTL):** `theme.css` uses `'Public Sans'` but fontsource registers `'Public Sans Variable'`, so the Latin theme font may not actually be applied upstream.
-10. From session 1, still open: the "Type" key collision (noun vs verb), top-nav links under the welcome toast, and Go backend messages (en/zh only).
+1. **Relative times are English** («آخرین فعالیت: a few seconds ago») on the security page: no Persian dayjs locale is loaded. Dates in general (dayjs `format`, `toLocaleString` for dates in subscription plans) were not changed; see question 3.
+2. **Hard-coded English outside `t()`** (upstream gaps, need new keys in all seven locales): the usage-log `Tokens` column header (`header: 'Tokens'`; the existing `Tokens` key means an auth token in some locales, e.g. vi «Mã thông báo», so wrapping it is not safe), and «Pay», «• Save», «Minimum …», «% OFF» on the top-up preset buttons.
+3. **Throughput** `127 t/s` shows as `t/s 127` in RTL (timing cell); `formatTokens` / `formatUseTime` build Latin-digit strings with `toFixed`.
+4. **`Type` + username + `to confirm`** in the delete-account dialog cannot read correctly in Persian (`Type` is a noun, «نوع», everywhere else). `to confirm` is left in English; see question 2.
+5. **Access-token history sheet** on the security page embeds the audit-log viewer, which is still English (99 keys, plus 115 audit-event descriptors in `usage-logs/lib/format.ts`, which also label top-up, manage and login rows in the usage logs). That is the audit-log batch.
+6. **Users page quota cell** has a `-ml-1.5` offset (not in this session's pages).
+7. Still open from session 2: `mr-2`/`ml-2` on button spinners, `rtl:` also matching `:lang(fa)` when LTR is forced, carousel arrows, the other `<pre>` blocks, the Public Sans font name mismatch, top-nav links under the welcome toast, Go backend messages (en/zh only).
 
 ## New open questions
 
-1. **Interface locale for all money and numbers.** Should `@/lib/currency` default to the interface language (reading i18next at call time) instead of the runtime locale? That fixes item 1 everywhere at once but changes a shared default for all languages. The alternative is passing the locale at each call site, as done for the dashboard.
-2. **Latin digits from `{{count}}`.** i18next can format interpolations (`{{count, number}}`), which would make them follow `PERSIAN_INTL_LOCALE`. That changes the key text in all 8 locales. Worth doing, or accept Latin digits in interpolations?
-3. **Security page completeness.** The next batch could finish the security page (account bindings, access tokens, login sessions, privacy) and the profile notification tab, about 110 keys. Do those first, or the usage-log detail dialogs and audit logs (about 220 keys)?
-4. **2FA step label fix (item 4).** OK to change it to one interpolated key such as `Step {{current}} of {{total}}: {{label}}`? It needs a new key in all 7 required locales.
+1. **Audit batch next?** The access-token history on the security page and the non-consume rows in usage logs need the audit viewer and descriptors (about 215 keys). Do that next, or the usage-log detail dialogs first?
+2. **Delete-account confirmation label.** Replace `{t('Type')} <strong>{name}</strong> {t('to confirm')}` with one key using `Trans` (for example `Type <strong>{{name}}</strong> to confirm`)? It adds a key to all seven required locales, like the 2FA step fix.
+3. **Dates and relative times in Persian.** Load the dayjs `fa` locale for relative times? And should absolute dates stay Gregorian `YYYY-MM-DD` with Latin digits (current), or follow `PERSIAN_INTL_LOCALE` (which would also switch to the Solar Hijri calendar through Intl)?
+4. **FSI/PDI in translations.** Is wrapping interpolated LTR values in U+2068/U+2069 inside `fa.json` acceptable as a convention? If yes, it should be added to `docs/i18n/fa.md` (and possibly to `check-fa`).

@@ -67,7 +67,9 @@ export function QuotaDetailsPopover(props: QuotaDetailsPopoverProps) {
           {props.details.map((detail) => (
             <Fragment key={detail.label}>
               <dt className='text-muted-foreground'>{detail.label}</dt>
-              <dd className='text-right break-all'>{detail.value}</dd>
+              <dd className='text-end break-all'>
+                <bdi dir='ltr'>{detail.value}</bdi>
+              </dd>
             </Fragment>
           ))}
         </dl>

@@ -470,14 +470,15 @@ export function formatRelativeTime(
 
 /**
  * Format Unix timestamp to date string
+ * (Solar Hijri for a Persian `locale` from `toIntlLocale`)
  */
-export function formatTimestamp(timestamp: number): string {
+export function formatTimestamp(timestamp: number, locale?: string): string {
   if (!timestamp || timestamp === 0) {
     return 'N/A'
   }
 
   try {
-    return formatTimestampToDate(timestamp)
+    return formatTimestampToDate(timestamp, 'seconds', locale)
   } catch {
     return 'Invalid date'
   }

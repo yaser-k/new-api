@@ -70,8 +70,8 @@ function DetailSection(props: {
   )
 }
 
-function formatTaskTimestamp(value?: number): string {
-  return value ? formatTimestampToDate(value, 'seconds') : '-'
+function formatTaskTimestamp(value?: number, locale?: string): string {
+  return value ? formatTimestampToDate(value, 'seconds', locale) : '-'
 }
 
 interface TaskDetailsDialogProps {
@@ -130,17 +130,17 @@ export function TaskDetailsDialog(props: TaskDetailsDialogProps) {
           />
           <DetailRow
             label={t('Submit Time')}
-            value={formatTaskTimestamp(props.log.submit_time)}
+            value={formatTaskTimestamp(props.log.submit_time, locale)}
             mono
           />
           <DetailRow
             label={t('Start Time')}
-            value={formatTaskTimestamp(props.log.start_time)}
+            value={formatTaskTimestamp(props.log.start_time, locale)}
             mono
           />
           <DetailRow
             label={t('Finish Time')}
-            value={formatTaskTimestamp(props.log.finish_time)}
+            value={formatTaskTimestamp(props.log.finish_time, locale)}
             mono
           />
           {properties?.origin_model_name ? (

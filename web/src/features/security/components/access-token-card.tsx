@@ -32,13 +32,15 @@ import {
 } from '@/components/ui/sheet'
 import { SecureVerificationDialog } from '@/features/auth/secure-verification'
 import { AuditLogViewer } from '@/features/usage-logs/audit/components/audit-log-viewer'
-import dayjs from '@/lib/dayjs'
+import { toIntlLocale } from '@/i18n/languages'
+import { formatTimestampToDate } from '@/lib/format'
 
 import { useAccessToken } from '../hooks/use-access-token'
 import { AccessTokenDialog } from './dialogs/access-token-dialog'
 
 export function AccessTokenCard() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = toIntlLocale(i18n.resolvedLanguage || i18n.language)
   const access = useAccessToken()
   const [confirmation, setConfirmation] = useState<'rotate' | 'revoke' | null>(
     null
@@ -49,7 +51,7 @@ export function AccessTokenCard() {
   const ready = !access.status.isError && !access.status.isPending && !!status
   let lastUsed = t('Unknown')
   if (status?.last_used_at) {
-    lastUsed = dayjs.unix(status.last_used_at).format('YYYY-MM-DD HH:mm:ss')
+    lastUsed = formatTimestampToDate(status.last_used_at, 'seconds', locale)
   } else if (status?.created_at) lastUsed = t('Not used yet')
   const confirm = () => {
     if (pending || !confirmation) return
@@ -106,9 +108,11 @@ export function AccessTokenCard() {
                     <dt className='text-muted-foreground'>{t('Created At')}</dt>
                     <dd className='mt-1'>
                       {status.created_at
-                        ? dayjs
-                            .unix(status.created_at)
-                            .format('YYYY-MM-DD HH:mm:ss')
+                        ? formatTimestampToDate(
+                            status.created_at,
+                            'seconds',
+                            locale
+                          )
                         : t('Unknown')}
                     </dd>
                   </div>

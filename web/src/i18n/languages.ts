@@ -42,6 +42,19 @@ export const PARTIAL_INTERFACE_LANGUAGES = ['fa'] as const
  */
 export const PERSIAN_INTL_LOCALE = 'fa'
 
+/**
+ * Whether an Intl locale tag (the result of `toIntlLocale`) is Persian. Dates
+ * shown in Persian use the Solar Hijri calendar; see `formatDisplayDate`.
+ */
+export function isPersianIntlLocale(locale?: string | null): boolean {
+  if (!locale) return false
+  try {
+    return new Intl.Locale(locale).language === 'fa'
+  } catch {
+    return false
+  }
+}
+
 export type InterfaceLanguageCode =
   (typeof INTERFACE_LANGUAGE_OPTIONS)[number]['code']
 

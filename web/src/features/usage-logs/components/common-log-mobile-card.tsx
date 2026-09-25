@@ -29,10 +29,11 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { toIntlLocale } from '@/i18n/languages'
 import { getUserAvatarFallback, getUserAvatarStyle } from '@/lib/avatar'
-import dayjs from '@/lib/dayjs'
 import {
   formatLogQuota,
   formatNumber,
+  formatDisplayDate,
+  formatGregorianTitle,
   formatTimestampToDate,
 } from '@/lib/format'
 
@@ -95,7 +96,7 @@ export function CommonLogMobileCard<TData>(props: {
     },
     time: {
       label: t('Time'),
-      value: formatTimestampToDate(log.created_at),
+      value: formatTimestampToDate(log.created_at, 'seconds', locale),
       visible: props.cells.has('created_at'),
     },
     user: {
@@ -185,9 +186,14 @@ export function CommonLogMobileCard<TData>(props: {
               aria-label={`${t('Time')}: ${fields.time.value}`}
               aria-haspopup='dialog'
               onClick={() => setSelectedField('time')}
+              title={formatGregorianTitle(log.created_at, locale)}
               className='text-muted-foreground h-auto min-h-6 px-0 py-0 text-xs font-normal whitespace-normal tabular-nums'
             >
-              {dayjs.unix(log.created_at).format('MM-DD HH:mm:ss')}
+              {formatDisplayDate(
+                log.created_at * 1000,
+                'MM-DD HH:mm:ss',
+                locale
+              )}
             </Button>
           </div>
         )}

@@ -47,7 +47,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { toIntlLocale } from '@/i18n/languages'
 import { formatCurrencyFromUSD } from '@/lib/currency'
-import { formatNumber } from '@/lib/format'
+import { formatGregorianTitle, formatNumber } from '@/lib/format'
 
 import { useBillingHistory } from '../../hooks/use-billing-history'
 import {
@@ -226,8 +226,14 @@ export function BillingHistoryDialog({
                               />
                             )}
                           </div>
-                          <div className='text-muted-foreground text-xs'>
-                            {formatTimestamp(record.create_time)}
+                          <div
+                            className='text-muted-foreground text-xs'
+                            title={formatGregorianTitle(
+                              record.create_time,
+                              locale
+                            )}
+                          >
+                            {formatTimestamp(record.create_time, locale)}
                           </div>
                         </div>
                         <StatusBadge

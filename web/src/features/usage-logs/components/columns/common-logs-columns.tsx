@@ -53,6 +53,7 @@ import { formatBillingCurrencyFromUSD } from '@/lib/currency'
 import {
   formatLogQuota,
   formatNumber,
+  formatGregorianTitle,
   formatTimestampToDate,
 } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -369,8 +370,11 @@ export function useCommonLogsColumns(
 
           return (
             <div className='flex min-w-0 flex-col gap-0.5'>
-              <span className='truncate font-mono text-xs tabular-nums'>
-                {formatTimestampToDate(timestamp)}
+              <span
+                className='truncate font-mono text-xs tabular-nums'
+                title={formatGregorianTitle(timestamp, locale)}
+              >
+                {formatTimestampToDate(timestamp, 'seconds', locale)}
               </span>
               <StatusBadge
                 label={t(config.label)}

@@ -56,8 +56,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { toIntlLocale } from '@/i18n/languages'
-import { formatQuota } from '@/lib/format'
+import { isPersianIntlLocale, toIntlLocale } from '@/i18n/languages'
+import { formatQuota, formatTimestampToDate } from '@/lib/format'
 import { handleServerError } from '@/lib/handle-server-error'
 import { requireServerSuccess } from '@/lib/server-error-message'
 import { cn } from '@/lib/utils'
@@ -472,14 +472,26 @@ export function SubscriptionPlansCard({
                       </div>
                       <div className='text-muted-foreground mt-1.5'>
                         {endTimeLabel}{' '}
-                        {new Date(
-                          (subscription?.end_time || 0) * 1000
-                        ).toLocaleString()}
+                        {isPersianIntlLocale(locale)
+                          ? formatTimestampToDate(
+                              subscription?.end_time,
+                              'seconds',
+                              locale
+                            )
+                          : new Date(
+                              (subscription?.end_time || 0) * 1000
+                            ).toLocaleString()}
                       </div>
                       {isActive && nextResetTime > 0 && (
                         <div className='text-muted-foreground mt-1'>
                           {t('Next reset')}:{' '}
-                          {new Date(nextResetTime * 1000).toLocaleString()}
+                          {isPersianIntlLocale(locale)
+                            ? formatTimestampToDate(
+                                nextResetTime,
+                                'seconds',
+                                locale
+                              )
+                            : new Date(nextResetTime * 1000).toLocaleString()}
                         </div>
                       )}
                       <div className='text-muted-foreground mt-1'>

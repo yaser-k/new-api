@@ -10,6 +10,18 @@ This guide applies to every Persian string in `web/src/i18n/locales/fa.json`. Fo
 - Numbers and dates formatted through `Intl` use the constant `PERSIAN_INTL_LOCALE` in `web/src/i18n/languages.ts`. It is `fa`, which gives Persian digits (۱۲۳). Set it to `fa-u-nu-latn` for Latin digits (123).
 - Write all locale changes through the script described in the i18n skill, then run `bun run i18n:sync` and `bun run i18n:check-fa` from `web/`. The check must report no findings.
 
+## Dates and times
+
+These rules apply only when the interface language is Persian. Every other language keeps its current date output.
+
+- Absolute dates are shown in the Solar Hijri calendar, in numeric year/month/day order with `/` between the fields and 24-hour time: `۱۴۰۵/۰۷/۰۳ ۱۵:۰۵:۰۹` (2026-09-25 15:05:09). Digits follow `PERSIAN_INTL_LOCALE`.
+- Relative times are Persian: «۳ دقیقه پیش».
+- Code: format display dates with the shared helpers in `web/src/lib/format.ts` and `web/src/lib/time.ts` (`formatDisplayDate`, `formatTimestampToDate`, `formatTimestamp`, `formatDateTimeStr`, `formatDateStr`, `formatDate`, `formatDateTimeObject`, `formatChartTime`) and relative times with `formatFromNow` or `formatTimestampRelative`. Pass the interface locale as the last argument: `toIntlLocale(i18n.resolvedLanguage || i18n.language)`, computed at render. Do not call `dayjs().format()`, `toLocaleString()` or `fromNow()` directly for a displayed date.
+- Only displayed dates change. Values sent to the API, date-range filter values, input values (`formatTimestampForInput`), exports and copied text stay Gregorian.
+- Where a Solar Hijri date and time is shown in a table, list or log cell, set `title={formatGregorianTitle(timestamp, locale)}` on the element, so the Gregorian date and time can be matched with provider invoices and server logs. It returns `undefined` for other languages.
+- The date pickers (`web/src/components/ui/calendar.tsx`, `date-picker.tsx`, `datetime-picker.tsx`) and the native date-time inputs of the usage-log range picker stay Gregorian, including the date shown on the picker button. react-day-picker 10 supports the Persian calendar only through the `@daypicker/persian` add-on, which ships its own DayPicker component and depends on the prerelease third-party library `date-fns-jalali`.
+- In a translation, wrap an interpolated date or time in FSI and PDI (rule 10 below).
+
 ## Glossary
 
 Use these terms consistently. If a new recurring term comes up, add it here first.
@@ -63,6 +75,11 @@ Use these terms consistently. If a new recurring term comes up, add it here firs
 | reset (a password or settings) | بازنشانی | Standard term. |
 | refresh | تازه‌سازی | Standard term. |
 | announcement, notification | اطلاعیه، اعلان | Standard terms. |
+| audit (as in audit record, audit info) | حسابرسی | Matches «گزارش حسابرسی». |
+| billing (how the cost of a request is calculated: billing mode, billing path, billing details) | محاسبۀ هزینه | Says what the section shows; «صورت‌حساب» is kept for invoices and the billing and payment settings. |
+| vendor (the maker of a model, such as OpenAI) | سازنده | These are model makers, not sellers; «فروشنده» would be wrong and «ارائه‌دهنده» is taken by provider. |
+| header (HTTP request header) | هدر | The loanword Persian developers use; the header names themselves stay English. |
+| tier (pricing tier) | سطح | Standard term for a pricing level. |
 
 ## Terms that stay in English
 

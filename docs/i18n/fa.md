@@ -87,6 +87,15 @@ Use these terms consistently. If a new recurring term comes up, add it here firs
 7. A Latin word or number next to Persian text gets exactly one space on each side: «ورود با GitHub». Never attach a Persian affix to a Latin word; rephrase instead (کلیدهای API, not APIها).
 8. Keep i18next placeholders such as `{{count}}` and any markup exactly as in the English source.
 9. Write natural, concise product Persian, as a native speaker would write it, not a word-for-word translation.
+10. Wrap an interpolated value in U+2068 FSI (first strong isolate) and U+2069 PDI (pop directional isolate) when it is, or may contain, left-to-right text that includes digits, punctuation or symbols: dates, times, version numbers, amounts with a currency symbol, IP addresses, IDs. Without the isolate, the bidirectional algorithm can move the neutral characters of the value (spaces, `-`, `:`, `$`) to the other side of the surrounding Persian text, so `2026-10-25 13:55` renders as `13:55 25-10-2026`. Put the FSI directly before the placeholder and the PDI directly after it, inside the translation value. Plain words and numbers already formatted by `Intl` for Persian do not need it. Every FSI (and any LRI or RLI) needs its PDI, and every PDI needs an opener; `check-fa` enforces this.
+
+    Example, with the two invisible characters written as `[FSI]` and `[PDI]`:
+
+    | Key | Persian value |
+    | --- | --- |
+    | `Last active {{time}} · Expires {{expires}}` | `آخرین فعالیت: [FSI]{{time}}[PDI] · انقضا: [FSI]{{expires}}[PDI]` |
+
+    In the `newKeys` object of the i18n script, write them as the JavaScript escapes `\u2068` and `\u2069`; the script stores the characters themselves in `fa.json`.
 
 ## Style
 
@@ -99,7 +108,7 @@ Use these terms consistently. If a new recurring term comes up, add it here firs
 
 ## Automated check
 
-`bun run i18n:check-fa` (from `web/`) runs `web/scripts/check-fa.mjs` against `fa.json` and exits with code 1 on any finding. It checks rules 1 to 8 plus empty values, stray whitespace, and keys that do not exist in `en.json`.
+`bun run i18n:check-fa` (from `web/`) runs `web/scripts/check-fa.mjs` against `fa.json` and exits with code 1 on any finding. It checks rules 1 to 8, the isolate pairing in rule 10 (an FSI, LRI or RLI without its PDI, or a PDI without an opener), empty values, stray whitespace, and keys that do not exist in `en.json`.
 
 Its ZWNJ checks for joined words are heuristics:
 

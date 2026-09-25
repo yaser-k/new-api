@@ -144,7 +144,8 @@ const TEXT_RULES = [
     pattern: new RegExp(
       `[${NON_JOINING}]${ZWNJ}(ها|های|هایی)(?![${LETTER}${ZWNJ}])`
     ),
-    message: 'ZWNJ before ها after a non-joining letter; write it joined: کلیدها',
+    message:
+      'ZWNJ before ها after a non-joining letter; write it joined: کلیدها',
   },
   {
     id: 'comparative-space',
@@ -195,6 +196,21 @@ const WORD_RULES = [
   },
 ]
 
+// Directional isolates: LRI, RLI and FSI open one, PDI closes the innermost.
+const ISOLATE_OPENERS = '\u2066\u2067\u2068'
+const PDI = '\u2069'
+
+function hasUnbalancedIsolates(value) {
+  let depth = 0
+  for (const char of value) {
+    if (ISOLATE_OPENERS.includes(char)) depth++
+    if (char !== PDI) continue
+    if (depth === 0) return true
+    depth--
+  }
+  return depth !== 0
+}
+
 function markupTokens(value) {
   const placeholders = value.match(/\{\{[^}]*\}\}/g) ?? []
   const tags = value.match(/<\/?[A-Za-z][^>]*>/g) ?? []
@@ -229,6 +245,14 @@ function checkPersianTranslations(faTranslation, enTranslation) {
         key,
         'markup-mismatch',
         'placeholders or markup differ from the English source'
+      )
+    }
+
+    if (hasUnbalancedIsolates(value)) {
+      report(
+        key,
+        'unbalanced-isolate',
+        'FSI, LRI or RLI without a closing PDI, or a PDI without an opener'
       )
     }
 

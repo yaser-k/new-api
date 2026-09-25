@@ -54,6 +54,15 @@ const cases = [
   ['unknown-key', 'Not in English', 'ناشناخته'],
   ['empty-value', 'Sign in', ''],
   ['edge-whitespace', 'Sign in', ' ورود'],
+  ['unbalanced-isolate', 'Go to page {{page}}', 'رفتن به صفحۀ \u2068{{page}}'],
+  ['unbalanced-isolate', 'Go to page {{page}}', 'رفتن به صفحۀ {{page}}\u2069'],
+  ['unbalanced-isolate', 'Go to page {{page}}', 'رفتن به صفحۀ \u2066{{page}}'],
+  ['unbalanced-isolate', 'Go to page {{page}}', 'رفتن به صفحۀ \u2067{{page}}'],
+  [
+    'unbalanced-isolate',
+    'Go to page {{page}}',
+    'رفتن به صفحۀ \u2069{{page}}\u2068',
+  ],
 ] as const
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
@@ -93,7 +102,7 @@ describe('check-fa', () => {
   it('exits 0 for text that follows the typography rules', () => {
     const result = runCheck({
       'Sign in': 'با کلیدهای API وارد می‌شوید، سرویس‌ها و فیلترها «فعال» هستند؟',
-      'Go to page {{page}}': 'رفتن به صفحۀ {{page}}',
+      'Go to page {{page}}': 'رفتن به صفحۀ \u2068{{page}}\u2069',
       'Learn more':
         'اطلاعات بیشتر، پاسخ سریع‌تر، نمودار میله‌ای و میانگین نتیجه‌ها',
     })

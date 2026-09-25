@@ -869,7 +869,7 @@ export function useCommonLogsColumns(
               >
                 {primary.text}
                 {hasMore && (
-                  <span className='text-muted-foreground/40 ml-0.5'>
+                  <span className='text-muted-foreground/40 ms-0.5'>
                     +{segments.length - 1}
                   </span>
                 )}
@@ -887,7 +887,7 @@ export function useCommonLogsColumns(
             <>
               <button
                 type='button'
-                className='group flex max-w-[200px] items-center gap-1 text-left text-xs'
+                className='group flex max-w-[200px] items-center gap-1 text-start text-xs'
                 onClick={() => setDialogOpen(true)}
                 title={t('Click to view full details')}
               >

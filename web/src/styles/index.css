@@ -26,9 +26,20 @@ For commercial licensing, please contact support@quantumnous.com
  * that activates it. Loaded globally so font-switching is instantaneous
  * with no FOUT once the variable is fetched. */
 @import '@fontsource-variable/lora';
+/* Persian (Arabic-script) face. The theme fonts have no Persian glyphs, so
+ * without it Persian text falls back to whatever the OS has. Applied only
+ * when the page language is Persian; see the `:lang(fa)` rule below. */
+@import '@fontsource-variable/vazirmatn';
 
 @import './theme.css';
 @import './theme-presets.css';
+
+/* Unlayered so it also wins over the `font-sans` utility. Code keeps its own
+ * `font-mono` face. */
+html:lang(fa) body,
+html:lang(fa) .font-sans {
+  font-family: 'Vazirmatn Variable', sans-serif;
+}
 
 @layer base {
   :root {

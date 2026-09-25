@@ -1,0 +1,23 @@
+import { chromium } from 'playwright'
+const [base, name] = process.argv.slice(2)
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' })
+const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN' })
+await context.addInitScript(() => localStorage.setItem('i18nextLng', 'zhCN'))
+const page = await context.newPage()
+await page.goto(`${base}/sign-in`); await page.waitForLoadState('networkidle')
+await page.locator('input[name="username"], input#username').first().fill('admin')
+await page.locator('input[type="password"]').first().fill('DemoPass-2026!')
+await page.locator('button[type="submit"]').first().click()
+await page.waitForURL((u) => !u.pathname.startsWith('/sign-in'))
+await page.goto(`${base}/security`); await page.waitForLoadState('networkidle'); await page.waitForTimeout(800)
+const label = await page.evaluate(() => {
+  const t = (window.i18next || null)
+  return null
+})
+const buttons = page.getByRole('button', { name: /删除账户|注销账户|删除帐户/ })
+console.log('delete buttons:', await buttons.count())
+await buttons.last().click(); await page.waitForTimeout(800)
+const l = page.locator('[role="alertdialog"] label, [role="dialog"] label').first()
+console.log(`label text: «${(await l.textContent()).replace(/\s+/g, ' ').trim()}»  html: ${await l.innerHTML()}`)
+await page.screenshot({ path: `${process.argv[4]}/${name}.png` })
+await browser.close()

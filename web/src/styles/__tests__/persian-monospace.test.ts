@@ -18,7 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { compile } from '@tailwindcss/node'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -30,7 +29,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 // otherwise a system font. These tests resolve that choice against the
 // stylesheet compiled by Tailwind, the same way the build does.
 
-const STYLESHEET = fileURLToPath(new URL('../index.css', import.meta.url))
+const STYLESHEET = path.resolve(import.meta.dirname, '../index.css')
 const SYSTEM_FONT = 'system font'
 const ZWNJ = String.fromCodePoint(0x200c)
 

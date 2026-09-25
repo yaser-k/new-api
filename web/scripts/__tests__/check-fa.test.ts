@@ -92,10 +92,10 @@ afterAll(() => {
 describe('check-fa', () => {
   it('exits 0 for text that follows the typography rules', () => {
     const result = runCheck({
-      'Sign in':
-        'با کلیدهای API وارد می‌شوید، سرویس‌ها و فیلترها «فعال» هستند؟',
+      'Sign in': 'با کلیدهای API وارد می‌شوید، سرویس‌ها و فیلترها «فعال» هستند؟',
       'Go to page {{page}}': 'رفتن به صفحۀ {{page}}',
-      'Learn more': 'اطلاعات بیشتر، پاسخ سریع‌تر و میانگین نتیجه‌ها',
+      'Learn more':
+        'اطلاعات بیشتر، پاسخ سریع‌تر، نمودار میله‌ای و میانگین نتیجه‌ها',
     })
 
     expect(result.stdout).toContain('no findings')

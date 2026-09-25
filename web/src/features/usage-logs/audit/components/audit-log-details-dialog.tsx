@@ -36,7 +36,7 @@ import { AuditDetailValue } from './audit-detail-value'
 export function AuditLogDetailsDialog(props: { entry: AuditLog }) {
   const { t, i18n } = useTranslation()
   const locale = toIntlLocale(i18n.resolvedLanguage || i18n.language)
-  const detail = buildAuditDetails(props.entry, t)
+  const detail = buildAuditDetails(props.entry, t, locale)
   const identifiers = [
     { label: t('Route'), value: props.entry.route },
     { label: t('Request ID'), value: props.entry.request_id },

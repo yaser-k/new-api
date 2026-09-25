@@ -74,10 +74,10 @@ afterEach(() => {
 })
 
 it.each([
-  [100, 'root'],
-  [10, 'admin'],
-  [1, 'user'],
-] as const)('keeps role %i as %s in Chinese', async (role, label) => {
+  [100, '超级管理员'],
+  [10, '管理员'],
+  [1, '用户'],
+] as const)('shows role %i as its translated label %s in Chinese', async (role, label) => {
   const i18n = createInstance()
   await i18n.init({ lng: 'zh', resources: { zh } })
   const log = {
@@ -337,7 +337,7 @@ it('renders the channel update as a readable summary and compact operation rows 
   expect(
     within(dialog).getByText('Field change details were not recorded')
   ).toBeVisible()
-  expect(within(dialog).getByText('root')).toBeVisible()
+  expect(within(dialog).getByText('Super Admin')).toBeVisible()
   expect(within(dialog).getByText('Session')).toBeVisible()
   expect(within(dialog).getByText(userAgent)).toBeVisible()
   expect(within(dialog).queryByText('Token identifier')).not.toBeInTheDocument()
@@ -409,7 +409,7 @@ it.each([
     { count: 0, total: 3, status: 1 },
     ['Enabled', '0 / 3'],
   ],
-  ['user.create', { username: 'alice', role: 10 }, ['admin', 'alice']],
+  ['user.create', { username: 'alice', role: 10 }, ['Admin', 'alice']],
 ])(
   'formats known parameters for %s without losing zero or false',
   async (action, params, values) => {
@@ -494,8 +494,8 @@ it.each([
     expect(within(dialog).getAllByText(summary).length).toBeGreaterThan(0)
     expect(within(dialog).getByText('Failed')).toBeVisible()
     expect(within(dialog).getByText('403')).toBeVisible()
-    expect(within(dialog).queryByText('root')).not.toBeInTheDocument()
-    expect(within(dialog).getByText('user')).toBeVisible()
+    expect(within(dialog).queryByText('Super Admin')).not.toBeInTheDocument()
+    expect(within(dialog).getByText('User')).toBeVisible()
   }
 )
 

@@ -19,19 +19,12 @@ For commercial licensing, please contact support@quantumnous.com
 import type { TFunction } from 'i18next'
 
 import { loginMethodLabel } from '@/features/security/components/login-session-utils'
-import { ROLE } from '@/lib/roles'
+import { getRoleLabelKey } from '@/lib/roles'
 
 import { renderAuditContent } from '../../lib/format'
 import { buildQuotaAuditOperation } from '../../lib/quota-audit-operation'
 import type { LogOtherData } from '../../types'
 import type { AuditLog } from '../api'
-
-const AUDIT_ROLE_NAMES: Record<number, string> = {
-  [ROLE.GUEST]: 'guest',
-  [ROLE.USER]: 'user',
-  [ROLE.ADMIN]: 'admin',
-  [ROLE.SUPER_ADMIN]: 'root',
-}
 
 const TOKEN_AUDIT_OPERATIONS: Record<
   string,
@@ -320,7 +313,11 @@ function buildTokenAuditOperation(
   return { headline, summary, identifier, description, fields }
 }
 
-export function buildAuditDetails(entry: AuditLog, t: TFunction) {
+export function buildAuditDetails(
+  entry: AuditLog,
+  t: TFunction,
+  locale?: string
+) {
   const metadata = isAuditDetailObject(entry.other) ? entry.other : {}
   const metadataUnavailable =
     entry.other != null && !isAuditDetailObject(entry.other)
@@ -337,7 +334,8 @@ export function buildAuditDetails(entry: AuditLog, t: TFunction) {
     action,
     params,
     entry.success,
-    t
+    t,
+    locale
   )
   const operation = tokenOperation ?? quotaOperation
   const summaryParams: NonNullable<NonNullable<LogOtherData['op']>['params']> =
@@ -356,15 +354,6 @@ export function buildAuditDetails(entry: AuditLog, t: TFunction) {
       summaryParams[key] = value
     }
   }
-  if (typeof summaryParams.method === 'string') {
-    summaryParams.method = loginMethodLabel(summaryParams.method, t)
-  }
-  if (
-    typeof summaryParams.role === 'number' &&
-    [0, 1, 10, 100].includes(summaryParams.role)
-  ) {
-    summaryParams.role = AUDIT_ROLE_NAMES[summaryParams.role]
-  }
 
   let fallback = t('Operation audit')
   if (entry.category === 'login') fallback = t('Login')
@@ -382,7 +371,8 @@ export function buildAuditDetails(entry: AuditLog, t: TFunction) {
           success: entry.success,
         },
       },
-      t
+      t,
+      locale
     ) || (entry.content && entry.content !== action ? entry.content : fallback)
   const admin = isAuditDetailObject(metadata.admin_info)
     ? metadata.admin_info
@@ -401,7 +391,7 @@ export function buildAuditDetails(entry: AuditLog, t: TFunction) {
   }
   let actorRole = ''
   if ([1, 10, 100].includes(entry.actor_role)) {
-    actorRole = AUDIT_ROLE_NAMES[entry.actor_role]
+    actorRole = t(getRoleLabelKey(entry.actor_role))
   }
   const authMethod =
     entry.auth_method ||
@@ -454,7 +444,7 @@ export function buildAuditDetails(entry: AuditLog, t: TFunction) {
     typeof params.role === 'number' &&
     [0, 1, 10, 100].includes(params.role)
   ) {
-    params.role = AUDIT_ROLE_NAMES[params.role]
+    params.role = t(getRoleLabelKey(params.role))
   }
   if (typeof params.method === 'string') {
     params.method = loginMethodLabel(params.method, t)

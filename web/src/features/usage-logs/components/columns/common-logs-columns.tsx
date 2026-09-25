@@ -141,9 +141,10 @@ function buildTypeDetailSegments(
   language: string,
   usageSchema?: BillingUsageSchema
 ): DetailSegment[] {
+  const locale = toIntlLocale(language)
   // Top-up, audit, and login logs can carry a localized operation descriptor.
   if (log.type === 1 || log.type === 3 || log.type === 7) {
-    const text = renderAuditContent(other, t)
+    const text = renderAuditContent(other, t, locale)
     return text ? [{ text }] : []
   }
 
@@ -153,7 +154,6 @@ function buildTypeDetailSegments(
 
   if (log.type !== 2) return []
 
-  const locale = toIntlLocale(language)
   const isViolation = isViolationFeeLog(other)
   if (isViolation) {
     const segments: DetailSegment[] = []

@@ -24,6 +24,8 @@ import {
   splitBillingExprAndRequestRules,
   type ParsedTier,
 } from '@/features/pricing/lib/billing-expr'
+import { loginMethodLabel } from '@/features/security/components/login-session-utils'
+import { ROLE, getRoleLabelKey } from '@/lib/roles'
 
 import type { UsageLog } from '../data/schema'
 import type { LogOtherData } from '../types'
@@ -564,11 +566,14 @@ const AUDIT_TEMPLATES: Record<string, string> = {
 /**
  * Render the localized content of an operation log from its structured
  * `other.op` descriptor. Returns null when the log has no recognized action,
- * letting callers fall back to the raw `content` field.
+ * letting callers fall back to the raw `content` field. Role and sign-in
+ * method values are shown as their translated labels, and quota amounts
+ * follow `locale` (the interface locale from `toIntlLocale`).
  */
 export function renderAuditContent(
   other: LogOtherData | null | undefined,
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: (key: string, opts?: Record<string, unknown>) => string,
+  locale?: string
 ): string | null {
   const op = other?.op
   if (!op?.action) return null
@@ -596,11 +601,22 @@ export function renderAuditContent(
     op.action,
     op.params ?? {},
     other?.audit_info?.success !== false,
-    t
+    t,
+    locale
   )
   if (quotaOperation) {
     return `${quotaOperation.summary} · ${quotaOperation.description}`
   }
   const params = { ...op.params }
+  if (
+    typeof params.role === 'number' &&
+    Object.values<number>(ROLE).includes(params.role)
+  ) {
+    params.role = t(getRoleLabelKey(params.role))
+  }
+  // `generic` interpolates the HTTP method, which stays as recorded.
+  if (op.action !== 'generic' && typeof params.method === 'string') {
+    params.method = loginMethodLabel(params.method, t)
+  }
   return t(template, params)
 }

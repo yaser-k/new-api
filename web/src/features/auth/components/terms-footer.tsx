@@ -16,11 +16,30 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 
 import { cn } from '@/lib/utils'
 
 import type { SystemStatus } from '../types'
+
+// One sentence per variant and combination of configured documents, so each
+// language can order the whole sentence around the links.
+const TERMS_FOOTER_KEYS = {
+  'sign-in': {
+    both: 'By clicking sign in, you agree to our <agreement>User Agreement</agreement> and <privacy>Privacy Policy</privacy>.',
+    agreement:
+      'By clicking sign in, you agree to our <agreement>User Agreement</agreement>.',
+    privacy:
+      'By clicking sign in, you agree to our <privacy>Privacy Policy</privacy>.',
+  },
+  'sign-up': {
+    both: 'By creating an account, you agree to our <agreement>User Agreement</agreement> and <privacy>Privacy Policy</privacy>.',
+    agreement:
+      'By creating an account, you agree to our <agreement>User Agreement</agreement>.',
+    privacy:
+      'By creating an account, you agree to our <privacy>Privacy Policy</privacy>.',
+  },
+} as const
 
 interface TermsFooterProps {
   variant?: 'sign-in' | 'sign-up'
@@ -34,11 +53,6 @@ export function TermsFooter({
   status,
 }: TermsFooterProps) {
   const { t } = useTranslation()
-  const text =
-    variant === 'sign-in'
-      ? 'By clicking sign in, you agree to our'
-      : 'By creating an account, you agree to our'
-
   const hasUserAgreement = Boolean(status?.user_agreement_enabled)
   const hasPrivacyPolicy = Boolean(status?.privacy_policy_enabled)
 
@@ -46,49 +60,34 @@ export function TermsFooter({
     return null
   }
 
-  const agreementLink = {
-    label: 'User Agreement',
-    href: '/user-agreement',
+  const keys = TERMS_FOOTER_KEYS[variant]
+  let footerKey: string = keys.both
+  if (!hasPrivacyPolicy) {
+    footerKey = keys.agreement
+  } else if (!hasUserAgreement) {
+    footerKey = keys.privacy
   }
-  const privacyLink = {
-    label: 'Privacy Policy',
-    href: '/privacy-policy',
-  }
-
-  const activeLinks =
-    hasUserAgreement || hasPrivacyPolicy
-      ? ([
-          hasUserAgreement ? agreementLink : null,
-          hasPrivacyPolicy ? privacyLink : null,
-        ].filter(Boolean) as Array<{ label: string; href: string }>)
-      : [agreementLink, privacyLink]
-
-  const [firstLink, secondLink] = activeLinks
 
   return (
     <p className={cn('text-muted-foreground text-center text-xs', className)}>
-      {text}{' '}
-      {firstLink && (
-        <a
-          href={firstLink.href}
-          className='hover:text-primary underline underline-offset-4'
-        >
-          {firstLink.label}
-        </a>
-      )}
-      {secondLink && (
-        <>
-          {' '}
-          {t('and')}{' '}
-          <a
-            href={secondLink.href}
-            className='hover:text-primary underline underline-offset-4'
-          >
-            {secondLink.label}
-          </a>
-        </>
-      )}
-      .
+      <Trans
+        t={t}
+        i18nKey={footerKey}
+        components={{
+          agreement: (
+            <a
+              href='/user-agreement'
+              className='hover:text-primary underline underline-offset-4'
+            />
+          ),
+          privacy: (
+            <a
+              href='/privacy-policy'
+              className='hover:text-primary underline underline-offset-4'
+            />
+          ),
+        }}
+      />
     </p>
   )
 }

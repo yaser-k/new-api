@@ -819,4 +819,9 @@ export const STATIC_I18N_KEYS = [
   'Vendor name and icon must not exceed 128 characters.',
   'Shown',
   'Not shown',
+  // Legal consent sentences, rendered through <Trans i18nKey>, which the
+  // t('...') scan does not match.
+  'I have read and agree to the <agreement>User Agreement</agreement> and the <privacy>Privacy Policy</privacy>.',
+  'I have read and agree to the <agreement>User Agreement</agreement>.',
+  'I have read and agree to the <privacy>Privacy Policy</privacy>.',
 ] as const

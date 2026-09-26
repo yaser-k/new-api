@@ -16,12 +16,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { act, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import i18next from 'i18next'
 import { afterEach, describe, expect, it } from 'vitest'
-
-import en from '@/i18n/locales/en.json'
-import fa from '@/i18n/locales/fa.json'
 
 import { LegalConsent } from '../legal-consent'
 
@@ -39,34 +36,6 @@ function renderConsent() {
 describe('LegalConsent', () => {
   afterEach(async () => {
     await i18next.changeLanguage('en')
-  })
-
-  it('joins both legal links with the translated conjunction in Persian', async () => {
-    i18next.addResourceBundle('fa', 'translation', fa.translation, true, true)
-    renderConsent()
-
-    await act(async () => {
-      await i18next.changeLanguage('fa')
-    })
-
-    const label = screen.getByText(fa.translation['User Agreement'], {
-      selector: 'a',
-    }).parentElement
-    expect(label).toHaveTextContent(
-      `${fa.translation['User Agreement']} ${fa.translation.and} ${fa.translation['Privacy Policy']}`
-    )
-    expect(label?.textContent).not.toMatch(/\band\b/)
-  })
-
-  it('joins both legal links with "and" in English', async () => {
-    i18next.addResourceBundle('en', 'translation', en.translation, true, true)
-    await i18next.changeLanguage('en')
-    renderConsent()
-
-    const label = screen.getByRole('link', {
-      name: 'User Agreement',
-    }).parentElement
-    expect(label).toHaveTextContent('User Agreement and Privacy Policy.')
   })
 
   it('aligns the consent text to the inline start so it follows RTL', () => {

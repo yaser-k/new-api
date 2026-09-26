@@ -4476,6 +4476,7 @@
     "Prices changed while preparing the conversion. Try again.": "変換の準備中に価格が変更されました。もう一度お試しください。",
     "Prices for each set of conditions": "各条件に対応する料金",
     "Prices shown per": "価格表示単位",
+    "Prices shown per {{unit}} tokens": "価格は {{unit}} トークンあたりの表示です",
     "Prices shown per usage unit": "使用単位ごとの価格を表示",
     "Prices synced successfully": "価格が正常に同期されました",
     "Prices vary by usage tier and request conditions": "価格は利用ティアとリクエスト条件で変動します",

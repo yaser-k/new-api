@@ -4476,6 +4476,7 @@
     "Prices changed while preparing the conversion. Try again.": "Giá đã thay đổi trong khi chuẩn bị chuyển đổi. Vui lòng thử lại.",
     "Prices for each set of conditions": "Giá tương ứng với từng điều kiện",
     "Prices shown per": "Giá hiển thị theo",
+    "Prices shown per {{unit}} tokens": "Giá hiển thị theo {{unit}} token",
     "Prices shown per usage unit": "Giá hiển thị theo từng đơn vị sử dụng",
     "Prices synced successfully": "Đồng bộ giá thành công",
     "Prices vary by usage tier and request conditions": "Giá thay đổi theo bậc dùng và điều kiện yêu cầu",

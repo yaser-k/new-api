@@ -4476,6 +4476,7 @@
     "Prices changed while preparing the conversion. Try again.": "Les prix ont changé pendant la préparation. Réessayez.",
     "Prices for each set of conditions": "Prix selon les conditions",
     "Prices shown per": "Prix affichés par",
+    "Prices shown per {{unit}} tokens": "Prix affichés par {{unit}} jetons",
     "Prices shown per usage unit": "Prix affichés par unité d'utilisation",
     "Prices synced successfully": "Prix synchronisés avec succès",
     "Prices vary by usage tier and request conditions": "Les prix varient selon le palier d’utilisation et les conditions de requête",

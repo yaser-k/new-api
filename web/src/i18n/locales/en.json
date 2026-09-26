@@ -4476,6 +4476,7 @@
     "Prices changed while preparing the conversion. Try again.": "Prices changed while preparing the conversion. Try again.",
     "Prices for each set of conditions": "Prices for each set of conditions",
     "Prices shown per": "Prices shown per",
+    "Prices shown per {{unit}} tokens": "Prices shown per {{unit}} tokens",
     "Prices shown per usage unit": "Prices shown per usage unit",
     "Prices synced successfully": "Prices synced successfully",
     "Prices vary by usage tier and request conditions": "Prices vary by usage tier and request conditions",

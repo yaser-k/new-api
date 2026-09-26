@@ -4476,6 +4476,7 @@
     "Prices changed while preparing the conversion. Try again.": "準備轉換時價格已變更，請重試。",
     "Prices for each set of conditions": "不同條件對應的價格",
     "Prices shown per": "價格顯示單位",
+    "Prices shown per {{unit}} tokens": "價格按每 {{unit}} Token 顯示",
     "Prices shown per usage unit": "價格按每個用量單位顯示",
     "Prices synced successfully": "價格同步成功",
     "Prices vary by usage tier and request conditions": "價格根據用量檔位和請求條件動態調整",

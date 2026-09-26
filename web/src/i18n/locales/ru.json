@@ -4476,6 +4476,7 @@
     "Prices changed while preparing the conversion. Try again.": "Во время подготовки цены изменились. Повторите попытку.",
     "Prices for each set of conditions": "Цены для каждого набора условий",
     "Prices shown per": "Цены указаны за",
+    "Prices shown per {{unit}} tokens": "Цены указаны за {{unit}} токенов",
     "Prices shown per usage unit": "Цены указаны за единицу использования",
     "Prices synced successfully": "Цены успешно синхронизированы",
     "Prices vary by usage tier and request conditions": "Цена зависит от уровня использования и условий запроса",

@@ -1,177 +1,240 @@
-# Persian (fa) locale: session 5 (chart order, Solar Hijri charts and pickers, audit values, batch 5)
+# Persian (fa) locale: session 6 (Persian-only audit labels, blank Nowruz capture, RTL polish, billing status fix, batch 6, upstream split plan)
 
 Temporary review folder. Delete `.fa-review/` before any upstream PR.
 
-Branch: `feat/fa-locale`. `upstream/main` was still at `c2b7a9a` (fetched at the start of this session), so no upstream merge was needed. Session 4 is described in the previous version of this file (`git log -- .fa-review/REPORT.md`, last one at `a498835`).
+Branches: `feat/fa-locale` (the fork) and `fix/billing-status-label` (from `upstream/main`, for a later upstream PR). `upstream/main` was still at `c2b7a9a` (fetched at the start of this session), so no merge was needed. Session 5 is described in the previous version of this file (`git log -- .fa-review/REPORT.md`, last one at `251e669`).
 
 ## Decisions applied
 
 | # | Decision | Where it landed |
 | --- | --- | --- |
-| 1 | Chart order fixed upstream-style, then Solar Hijri axes in the fork | A and B below |
-| 2 | Date pickers with `@daypicker/persian` | C below |
-| 3 | Audit values on feat/fa-locale as their own commit | D below; roles translated in every language (answered during the session) |
-| 4 | Batch 5: customer-facing pages | E below, 448 keys |
+| 1 | Audit roles and sign-in methods: Persian only; other languages as upstream | A |
+| 2 | Billing-history status label: upstream-style fix on its own branch | D |
+| 3 | Blank Nowruz screenshot, RTL issues, small admin pages | B, C, E |
+| 4 | Upstream split: plan only | F |
+| 5 | Chart legend order stays | unchanged |
 
 ## Commits
 
 ```
-fix/dashboard-chart-time-order (from upstream/main c2b7a9a)
-81b140e fix(web): order dashboard chart points by time across a year boundary
-04b86d9 style(web): clear the existing lint errors in dashboard charts
-
-feat/fa-locale (from a498835)
-bc388d4 Merge branch 'fix/dashboard-chart-time-order' into feat/fa-locale
-170ba72 feat(web): show Solar Hijri dashboard chart axes in Persian
-9d22fac feat(web): Solar Hijri date pickers in Persian with @daypicker/persian
-f767402 feat(web): translate roles and sign-in methods in audit content
-4db67e2 feat(i18n): translate the fifth Persian batch (448 keys)
+feat/fa-locale (from 251e669)
+9cd40a8 fix(web): translate audit roles and sign-in methods in Persian only
+936ab28 fix(web): keep code, handles, units and timings in reading order in RTL
+129d598 style(web): clear the existing lint errors in the home terminal demo
+3825299 feat(i18n): translate the sixth Persian batch (236 keys)
+42a98a2 style(web): format the user subscriptions dialog
 (this hand-off commit)
+
+fix/billing-status-label (from upstream/main c2b7a9a)
+6bf13ab fix(web): translate the top-up status in the billing history
 ```
 
-## A. Upstream branch fix/dashboard-chart-time-order
+## A. Audit roles and sign-in methods: Persian only
 
-- Bug: `dashboard/lib/charts.ts` sorted the `formatChartTime` keys as text (`.sort()`, and `localeCompare` on `Time` for the bar, area and model trend values), so a range from late December to early January drew January first, in every language. `processUserChartData` had the same `.sort()`. No other chart code sorts time labels.
-- Fix: each time key keeps the earliest timestamp that produced it; keys sort by that timestamp. The three `localeCompare` re-sorts were removed, because the values are already pushed in chart-time order (stable order within a time point is unchanged). Labels, colors, aggregation and padding are unchanged. The legend's item order follows the data order, so it can differ from before.
-- Second commit: the file had 15 pre-existing oxlint errors (web/AGENTS.md 3.2 requires touched files to be error-free). Behavior-preserving cleanup, separate so it can be dropped.
-- Test `web/src/features/dashboard/lib/__tests__/chart-time-order.test.ts` (6 cases: day, hour, week, for the model charts and the user trend). On upstream code: `6 failed`, for example `expected [ '01-01', '01-02', '01-03', …(4) ] to deeply equal [ '12-28', '12-29', '12-30', …(4) ]`. With the fix: `6 passed`.
+- `renderAuditContent(other, t, locale)` (`usage-logs/lib/format.ts`): the role number and the sign-in method are translated only when `isPersianIntlLocale(locale)`; every other language interpolates the recorded values, exactly as upstream (`Created user alice (role 100)`, `Logged in successfully via password`).
+- `buildAuditDetails(entry, t, locale)` (`usage-logs/audit/lib/audit-details.ts`): upstream's `AUDIT_ROLE_NAMES` (root, admin, user, guest) are back for the summary, the actor role and the role field; `auditRoleName()` returns the translated role label only for Persian. The sign-in method label keeps upstream's behaviour (upstream already translates it in the viewer).
+- Quota amounts: passing the interface locale for every language would not keep en and zh identical to upstream. Upstream formats audit amounts with the runtime default locale, so an English interface in a German browser shows `1 $`; with the interface locale it would show `$1`. The amounts therefore follow the interface locale only in Persian (`quotaText` in `quota-audit-operation.ts`); other languages keep upstream's call. A test pins this with a German runtime default.
+- `web/src/features/usage-logs/audit/__tests__/details.test.tsx` is restored byte for byte: `git diff c2b7a9a -- <file>` is empty.
+- Tests: `usage-logs/lib/__tests__/audit-content-locale.test.ts` (9: Persian role, method, unknown role, generic HTTP method, Persian digits; en and zh roles, methods and amounts equal to upstream's strings; en with a German browser default), `usage-logs/audit/__tests__/details-locale.test.ts` (5: Persian actor role and role field, Persian method; en and zh raw role names, en and zh method label).
+- Proof against both baselines, running the two new files on other sources: on `upstream/main` code, `5 failed | 9 passed` (only the five Persian-translation cases fail, every en and zh case passes); on the session 5 code (`251e669`), `5 failed | 9 passed` (exactly the five "matches upstream" cases fail, including the German-default amount).
+- Browser: the English audit log and the `user.create` details dialog were captured on the feat binary (`68-audit-log-en*.png`) and on the `upstream/main` binary with a copy of the same database (`69-audit-log-en-upstream*.png`). The captured row texts, the `user.create` row (`Created user demo-user (role user)`) and the dialog text (`… Role root … Role user …`) are identical (`diff` of the two outputs is empty). Persian: `67-audit-log-rtl.png`, `67b-audit-log-details-rtl.png` («کاربر ⁨demo-user⁩ ساخته شد (نقش ⁨کاربر⁩)», actor role «مدیر ارشد», «ورود موفق با رمز عبور»).
 
-| Command (worktree of the branch) | Result |
+### Upstream test files modified on feat/fa-locale
+
+`git diff --diff-filter=M --name-only c2b7a9a -- '*.test.*'`:
+
+| File | Why |
 | --- | --- |
+| `web/scripts/oxlint/__tests__/intl-locale.test.ts` | Adds `"fa"` to the valid standard-locales case, so the `project/intl-locale` rule is shown to accept the new interface language. One line. |
+| `web/src/components/data-table/core/__tests__/pagination.test.tsx` | Two tests appended: the page-step arrows mirror in RTL (`rtl:rotate-180`). No existing assertion changed. |
+| `web/src/features/keys/components/__tests__/api-key-listing.test.tsx` | The quota cell now uses logical `text-start`/`text-end` (it rendered "۵ ۲" in RTL) and wraps each amount in `<bdi dir="ltr">`, so the existing `text-left`/`text-right` assertions became `text-start`/`text-end`, checked on the grid cell (`quotaGridCell`). Three tests appended (logical alignment, LTR-isolated negative amount, Persian digits after a language switch); `afterEach` resets the global language. The only upstream test with changed assertions. |
+| `web/src/features/usage-logs/audit/__tests__/viewer.test.tsx` | One test appended: routes and user agents stay left to right in RTL. No existing assertion changed. |
+| `web/src/features/usage-logs/components/__tests__/cost-display.test.tsx` | One test appended (Persian digits after switching language); `afterEach` resets the language and removes the fa bundle. A formatting-only change to an upstream assertion from an earlier session was reverted this session. |
+| `web/src/features/usage-logs/components/__tests__/detail-preview.test.tsx` | One test appended: the preview uses `text-start`. No existing assertion changed. |
+
+`details.test.tsx` is no longer in this list.
+
+## B. The blank Nowruz screenshot
+
+Reproduced with the session 5 steps (same seed, `shots5.mjs` clock calls: `setSystemTime(2026-01-03T18:00Z)` then `setSystemTime(2026-03-23T18:00Z)` on the same page) against the current binary.
+
+- Not a render error, not a chart crash, not an auth problem: no page errors, the session stayed signed in, the page text and both chart canvases were present, and five seconds later the same page showed the Solar Hijri chart across Nowruz.
+- Cause: capture timing with Playwright's fake clock. At capture time the page-transition wrappers (`AnimatedOutlet`, `FadeIn`) had computed `opacity: 0`. Playwright's clock replays its whole log on every page load, so after the second `setSystemTime` the new page's fake `performance.now()` started at the real time elapsed since the first clock call: `perfNow 9889` against `document.timeline.currentTime 3744`. Motion started its opacity Web Animations with a start time from the fake clock (6856 on the real document timeline), so they sat in the delay phase (`currentTime -3111`, then `-545` at the capture) and finished about 7 s after navigation, just after the screenshot. The first dashboard capture had no earlier clock call, so its animation ran at once. Playwright's visibility check ignores opacity, so the script's `canvas` wait passed.
+- A real browser has no fake clock (both clocks share one origin), so there is no app bug and no app change. The fix is in the capture: `scripts/shots6.mjs` gives each faked time its own browser context and waits until the content and all its ancestors are fully opaque before each capture.
+- Retaken: `31-dashboard-nowruz-rtl.png` (۱۲/۲۵ … ۱۲/۲۹, ۰۱/۰۱ … ۰۱/۰۳) and `30-dashboard-year-boundary-rtl.png`. Blank check on the main area (right-hand sidebar excluded): the old capture had 7 colours and 0.000 non-white pixels; the new one 851 colours and 0.221.
+
+## C. RTL polish on the customer pages
+
+| Issue | Fix | Test (fails on the old code) |
+| --- | --- | --- |
+| Home terminal demo rendered right to left | `dir="ltr"` on the demo root (`home/components/hero-terminal-demo.tsx`); it is a code mock-up | `home/components/__tests__/terminal-direction.test.tsx` |
+| Profile `@admin` shown as `admin@` | `dir="auto"` on the handle span (`profile/components/profile-header.tsx`), so a Latin handle is LTR and an RTL-script handle stays RTL | `profile/components/__tests__/profile-header-direction.test.tsx` |
+| Pricing `/1M`, `/1K` toggles and `—t/s`, `—s` | `<bdi dir="ltr">` inside the toggles (`pricing-toolbar.tsx`) and the performance values (`model-perf-badge.tsx`); the dd keeps its RTL alignment | `pricing/__tests__/value-direction.test.tsx` (toggles, empty and measured values) |
+| Usage-log timing `127 t/s` shown as `t/s 127` | `dir="ltr"` on the throughput, duration and first-token values (`usage-logs/components/timing-metrics-cell.tsx`); the duration `1m 5s` flipped the same way (`5s 1m`) | `usage-logs/components/__tests__/timing-direction.test.tsx` |
+| Button spinners with `mr-2` | `me-2` in the wallet (recharge, transfer, payment confirm, Creem confirm), security (passkey card ×2, 2FA setup) and profile (notification tab) | `wallet/components/__tests__/spinner-direction.test.tsx` (one representative dialog; the other seven are the same class change) |
+
+- Existing components reused: plain `dir` attributes and `<bdi dir="ltr">`, the pattern already used by `quota-details-popover`, `api-key-quota-cell` and `activity-time-cell`. No new component.
+- With the old sources: `9 failed`; with the fixes: `9 passed`.
+- `hero-terminal-demo.tsx` had 12 upstream lint errors (a tab button without `type`, 11 index keys); cleared in the separate commit `129d598` (keys by line text and character offset; rendering unchanged).
+- Browser: `60-home-terminal-rtl.png` (terminal `dir=ltr`), `61-profile-rtl.png` (`@admin`, `dir=auto`), `62-pricing-rtl.png` (toggles `["/1M","/1K"]`, values `—s`, `—t/s`), `63-usage-logs-timing-rtl.png` (`127 t/s`, `dir=ltr`).
+
+### Hard-coded English strings (candidates for a later upstream fix)
+
+Each needs a new key in all seven required locales, so none is fixed on this branch.
+
+| File:line | Text |
+| --- | --- |
+| `web/src/features/usage-logs/components/columns/common-logs-columns.tsx:735` | column header `header: 'Tokens'` |
+| `web/src/features/pricing/components/model-details.tsx:1336`, `:1439` | `tokens` appended after `t('Prices shown per')` and the unit (`1M tokens`) |
+| `web/src/features/wallet/components/recharge-form-card.tsx:271` | preset button `Pay {amount}` |
+| `web/src/features/wallet/components/recharge-form-card.tsx:275` | preset button `• Save {amount}` |
+| `web/src/features/wallet/components/recharge-form-card.tsx:300` | amount placeholder `` `Minimum ${minTopup}` `` |
+| `web/src/features/wallet/lib/format.ts:77` | discount badge `` `${off}% OFF` `` |
+| `web/src/features/users/components/users-columns.tsx:267` | `{t('Inviter')} ID: {inviterId}` (literal `ID:`) |
+| `web/src/features/users/constants.ts:110-115` | binding labels `GitHub ID`, `Discord ID`, `OIDC ID`, `WeChat ID`, `Telegram ID` are passed to `t()` but are missing from `en.json` (English in every language) |
+| `web/src/features/home/components/hero-terminal-demo.tsx` | terminal labels `Request`, `Response`, `ms`, `tokens`, `cost`, `stream · sse`, `200 ok` (part of the code mock-up; low priority) |
+
+Related upstream wording bugs found while translating (fixing them would change English, so not here):
+
+- `web/src/features/subscriptions/components/subscriptions-columns.tsx:118`, `:124`: the plan status badge uses the verbs `t('Enable')`/`t('Disable')` instead of `Enabled`/`Disabled`; Persian shows «فعال کردن» (French, Russian and Vietnamese show the verb too).
+- `web/src/features/redemption-codes/components/redemptions-primary-buttons.tsx:88-90`: the "delete invalid" sentence is built from six fragments around a literal Latin comma; Persian reads «… استفاده‌شده, غیرفعال، و منقضی حذف می‌شوند.». One key with interpolation would read naturally in every language.
+- `web/src/features/redemption-codes/components/redemptions-mutate-drawer.tsx:286`: the key `Click save when you&apos;re done.` contains an HTML entity inside a JS string, so English shows `you&apos;re` literally.
+
+## D. Upstream branch fix/billing-status-label
+
+- Bug: `wallet/components/dialogs/billing-history-dialog.tsx` passed `statusConfig.label` from `getStatusConfig` (`wallet/lib/billing.ts`) to `StatusBadge` without `t()`, so Success, Pending and Expired were English in every language.
+- Other places: `getStatusConfig` and `STATUS_CONFIG` have no other callers; `TopupStatus` is shown only in this dialog; payment method names already go through `t()` in `getPaymentMethodName`.
+- Fix: `label={t(statusConfig.label)}` (one line). The keys already exist in all seven locales (zh 成功, 待确认, 已过期), so no locale file changes; `i18n:sync` compares against `en.json`, not code, so no registration is needed.
+- Test: `wallet/components/__tests__/billing-status-label.test.tsx` renders the dialog with the real en and zh locale files and a mocked API (3 cases: en labels, zh labels, no English labels in zh). On `upstream/main`: `2 failed | 1 passed` (`Unable to find an element with the text: 成功`); with the fix: `3 passed`.
+- Lint: the two changed files had no lint errors before or after, so there is no separate lint commit. Nothing Persian on the branch.
+
+| Command (worktree of the branch, `web/`) | Result |
+| --- | --- |
+| `bun install` | 1202 packages |
 | `bun run typecheck` | exit 0 |
-| `bunx oxlint -c .oxlintrc.json` on the 2 changed files | exit 0, 0 errors, 0 warnings |
-| `bunx oxfmt --check` on them | clean |
-| new test | `6 passed`; on upstream code `6 failed` |
-| `bun run test` | `Test Files 167 passed (167)`, `Tests 2117 passed (2117)` |
+| `bunx oxlint -c .oxlintrc.json <2 changed files>` | exit 0, no findings |
+| `bunx oxfmt --check <2 changed files>` | clean |
+| new test | `3 passed`; on `upstream/main` code `2 failed | 1 passed` |
+| `bun run test` | `Test Files 167 passed (167)`, `Tests 2114 passed (2114)`, exit 0 |
 | `bun run build` | exit 0, total 66156.8 kB / 20339.0 kB gzip |
-| `go build` | exit 0 |
+| `bun run i18n:sync` | exit 0; en, zh, zh-TW, fr, ja, ru, vi missing 0, extras 0; no file changed |
+| `go build` (repo root) | exit 0 |
 
-Browser check (English, Chromium 141.0.7390.37 headless, light theme, 1440×900, UTC, page clock set to 2026-01-03 18:00 UTC, `/dashboard/models`, 7 days, daily):
+Browser (`/wallet` → «Order History» button → Billing History dialog; admin sees all orders; Chromium 141.0.7390.37 headless, light theme, 1440×900, UTC):
 
-- before (`upstream/main`, `46-upstream-chart-before-en.png`): 01-01, 01-02, 01-03, 12-27, 12-28, 12-29, 12-30, 12-31
-- after (fix branch, `47-upstream-chart-after-en.png`): 12-27, 12-28, 12-29, 12-30, 12-31, 01-01, 01-02, 01-03
-- console errors in both runs: a 401 from the pre-login session probe, `ERR_CERT_AUTHORITY_INVALID` for external resources blocked by the sandbox proxy
+| | before (`upstream/main`) | after (fix branch) |
+| --- | --- | --- |
+| English | `Expired`, `Pending`, `Success` (`70-billing-history-before-en.png`) | `Expired`, `Pending`, `Success` (`71-billing-history-after-en.png`) |
+| Simplified Chinese | `Expired`, `Pending`, `Success` (`72-billing-history-before-zh.png`) | `已过期`, `待确认`, `成功` (`73-billing-history-after-zh.png`) |
 
-## B. Solar Hijri chart axes
+Console errors in all four runs: a 401 from the pre-login session probe and `ERR_CERT_AUTHORITY_INVALID` for an external resource blocked by the sandbox proxy.
 
-- `processChartData(…, locale)` and `processUserChartData(…, locale)` pass the locale to `formatChartTime`; the model charts, the consumption distribution chart and the user charts compute it at render with `toIntlLocale(i18n.resolvedLanguage || i18n.language)`.
-- Test `dashboard/lib/__tests__/chart-time-locale.test.ts` (5): fa day, hour and week across Nowruz (`۱۲/۲۶ … ۱۲/۲۹, ۰۱/۰۱ … ۰۱/۰۳`, hour `۱۲/۲۹ ۲۳:۰۰` then `۰۱/۰۱ ۰۰:۰۰`, week `۱۲/۲۵ - ۰۱/۰۲`), fa user trend, en Gregorian and identical to no locale.
-- Screens: `30-dashboard-year-boundary-rtl.png` (۱۰/۰۶ … ۱۰/۱۳, i.e. 27 Dec to 3 Jan), `31-dashboard-nowruz-rtl.png` (۱۲/۲۵ … ۱۲/۲۹, ۰۱/۰۱ … ۰۱/۰۳), `40-dashboard-year-boundary-en.png` (English unchanged).
+## E. Translation batch 6: users, redemption codes, subscriptions
 
-## C. Persian date pickers
+- **236 keys** added (0 existing values changed); `fa.json` now has **2036 keys**, 4742 fall back to English.
+- Scope: every en.json key used in `web/src/features/users`, `redemption-codes` and `subscriptions` (string literals and `t()` calls, including keys inside template literals and constants: status and role `labelKey`s, `SUCCESS_MESSAGES`/`ERROR_MESSAGES`, `ACTION_MESSAGES`), plus the 15 admin permission labels and descriptions that the user drawer receives from `service/authz` (`label_key`, `description_key`).
+- Each key was read at its call site. Choices: `Redeemed By` «ثبت‌کننده» (glossary: redeem «ثبت کد»), `Root` «مدیر ارشد» (same role as Super Admin), `Deleted` «حذف‌شده» (a status label and a toast share it), `Validity` «دورۀ اعتبار», `Promote`/`Demote` «ارتقا به مدیر»/«تنزل به کاربر عادی» (the menu shows only the applicable one), `Allow balance redemption` «امکان پرداخت با موجودی» (the field is `allow_balance_pay`), `, and` «، و» (check-fa rejects leading whitespace, and the fragment follows a word directly).
+- Left out on purpose: identifiers that only match an English key (`tokens`, `override`, `default`, `USD`) and brand names (Stripe, Discord, GitHub, LinuxDO, OIDC, Telegram, WeChat).
+- FSI/PDI around `{{plan}}`, `{{username}}`, `{{provider}}` and `{{action}}`; `{{currency}}` follows its existing siblings (`Quota ({{currency}})`) without isolates.
+- Written through `add-missing-keys.mjs` (created, run, deleted; fa only), then `bun run i18n:sync` and `bun run i18n:check-fa` (`2036 keys, no findings`).
+- Browser: `64-users-rtl.png`, `64b-user-drawer-rtl.png`, `65-redemption-codes-rtl.png`, `65b-redemption-delete-invalid-rtl.png`, `66-subscriptions-rtl.png`.
 
-Evaluation (web/AGENTS.md 3.15), from the npm registry (the download-count API is blocked by the sandbox proxy, 403):
+## F. Upstream split plan (proposal only; nothing built)
 
-| Package | Version | License | Maintainer / repo | Unpacked | Last publish |
+Sizes are from the branch commits against `c2b7a9a`, excluding `.fa-review/` and `fa.json`; "tests" is the part of the additions in test files. Commits that mix concerns (marked *) need their hunks split when the PR branch is built.
+
+Already separate upstream-ready branches: `fix/dashboard-chart-time-order` (session 5: `81b140e`, `04b86d9`; changes the chart order in every language, which is the fix) and `fix/billing-status-label` (this session: `6bf13ab`). PR 3 depends on the chart order fix.
+
+| # | PR | Commits / files | Approx. size | Tests | Other languages |
 | --- | --- | --- | --- | --- | --- |
-| `@daypicker/persian` | 10.0.1 | MIT | gpbl, `gpbl/react-day-picker` | 40.3 kB | 2026-05-15 |
-| `@daypicker/react` (dep) | 10.0.1 | MIT | same | 57.2 kB (re-exports `react-day-picker`) | 2026-05-15 |
-| `date-fns-jalali` (dep, pinned `4.1.0-0`) | latest 4.4.0-0 | MIT | smmoosavi, `date-fns-jalali/date-fns-jalali` | 4.46 MB (full date-fns fork) | 2026-05-31 |
+| 1 | `fix(web): right-to-left layout in shared components` (usable today with the config drawer's RTL toggle) | `c78c83f`* (without the `formatQuota` locale hunks and the legal-consent join), `d8ee064`, `cb25020`, `8ccec81`, `936ab28`, `129d598`, the RTL half of `f01c5af`* (quota cell logical classes and `<bdi dir="ltr">`, quota popover, token pair isolate), the sidebar side from `b2720c9`* | ~75 files, +1,250 / −170 | ~1,000 lines: `rtl-layout`, `code-block-direction`, `column-pinning`, `column-resize-direction`, `app-sidebar-direction`, `date-range-direction`, `terminal-direction`, `profile-header-direction`, `value-direction`, `timing-direction`, `spinner-direction`, appended cases in `pagination`, `viewer`, `detail-preview`, and the changed `api-key-listing` assertions | No visible change in LTR: logical classes equal the physical ones in LTR, `rtl:` variants apply only under `dir="rtl"`, `dir="ltr"` matches the inherited direction. One nuance: the profile handle's `dir="auto"` renders an RTL-script username in its own direction in an LTR interface. |
+| 2 | `feat(i18n): Persian (fa) partial locale, tooling and docs` + first batch | `b2720c9`* (without the sidebar), `07e070d`, `759a31e` (Vazirmatn), `f5296da` + `776c03c` (monospace shaping), `bfe01bb` (isolate check), the script part of `fa96f8b`; `fa.json` first batch (~400 keys); AGENTS.md, web/AGENTS.md, the i18n skill; `docs/i18n/fa.md` | ~25 files, +1,200 / −50, plus fa.json ~400 lines | ~550 lines: `languages`, `direction-provider`, `check-fa`, `persian-monospace`, the `intl-locale` lint case | The language switcher lists «فارسی». `<html lang>` now follows the interface language (upstream keeps a fixed `en`), and the page direction follows the language (a manual LTR/RTL choice in the config drawer is cleared on the next language change). The seven locale files are unchanged. `docs/i18n/fa.md` is a new file under `docs/`, which AGENTS.md reserves for explicit requests: ask the maintainers. |
+| 3 | `feat(web): Solar Hijri dates, chart axes and date pickers in Persian` | `0ea975e`, `c2369c8` + `42a98a2`, `170ba72`, `9d22fac` (+ `@daypicker/persian`, `bun.lock` +10 lines) | ~55 files, +1,535 / −350 | ~730 lines: `display-date-locale`, `activity-time-cell-dates`, `login-session-dates`, `date-picker-display`, `calendar-persian`, `chart-time-locale` | None: `formatDisplayDate` returns `dayjs(value).format(pattern)` for every non-Persian locale (tests pin en), the calendar renders the same DayPicker props for other languages, and the Persian calendar is a lazy chunk (75.2 kB / 19.7 kB gzip) loaded only in Persian. |
+| 4 | `feat(web): Persian labels for audit roles and sign-in methods` | net of `f767402` + `9cd40a8`: `usage-logs/lib/format.ts`, `quota-audit-operation.ts`, `audit/lib/audit-details.ts`, `login-session-utils.ts` (translator type), locale passed at 4 call sites | ~10 files, +90 / −20 | 303 lines: `audit-content-locale`, `details-locale` | None: en and zh are pinned to upstream's strings, including a German browser default; upstream's `details.test.tsx` is unchanged. Could be folded into PR 3. |
+| 5 | `fix(web): format money and numbers in the interface language` | the locale half of `f01c5af`* and the `formatQuota` hunks of `c78c83f`* (dashboard, wallet, usage logs, keys, profile) | ~30 files, +600 / −300 | ~450 lines: `format-quota-locale`, `format-currency-locale`, `amount-locale`, `summary-cards-locale`, `profile-header-locale`, cost-display and api-key-listing cases | **Yes**, whenever the browser language differs from the interface language: an English interface in a German browser showed `1.234,5 $` and now shows `$1,234.5`. This follows web/AGENTS.md ("the interface language drives Intl"); present it as its own PR with that rationale, or gate it to Persian if upstream prefers the current output. |
+| 6 | `fix(web): translate the joining word in the legal consent` | the legal-consent hunk of `c78c83f`* | 1 file, +1 / −1 (+ its test) | `legal-consent` | **Yes**: English changes from "… User Agreement and the Privacy Policy" to "… User Agreement and Privacy Policy", and zh and the others get their own «and» instead of English. Upstream-style small fix. |
+| 7 | `feat(i18n): Persian translation batches` | `fa96f8b`, `551a8a3`, `795d296`, `4db67e2`, `3825299` (fa.json only; one PR per batch or two PRs) | fa.json only, ~1,640 keys | `bun run i18n:check-fa` | None: only `fa.json`. |
 
-- Added with `bun add @daypicker/persian@^10.0.1` (same range as `react-day-picker`). 3 packages installed. `bun.lock` has a single `react-day-picker@10.0.1`, and `node_modules` has one copy. Version lock noted in `docs/i18n/fa.md` and next to the lazy import.
-- `components/ui/calendar.tsx`: in Persian it renders the add-on's `DayPicker` through `React.lazy`, with the same classNames and components, `dir` from the direction provider (`useDirection`), numerals from `Intl.NumberFormat(PERSIAN_INTL_LOCALE).resolvedOptions().numberingSystem` (`arabext` for `fa`, `latn` for `fa-u-nu-latn`), and the add-on's own Persian locale and month names. Other languages render the same DayPicker with the same props as before.
-- Trigger text through `formatDisplayDate`: `date-picker.tsx`, `datetime-picker.tsx`, and the usage-log range picker (label and mobile label). The Date values are unchanged; the native `datetime-local` inputs inside the range picker are drawn by the browser and stay Gregorian.
-- Tests: `components/ui/__tests__/calendar-persian.test.tsx` (4: en synchronous Gregorian; fa `مهر ۱۴۰۵` with Persian digits and the provider's `rtl`; picking 3 Mehr returns the same Date as picking September 25 in English; en→fa→en without a reload), `components/__tests__/date-picker-display.test.tsx` (4), one fa case in `usage-logs/components/__tests__/date-range-direction.test.tsx`. With the old sources: `7 failed / 4 passed` (all fa cases fail, the en cases pass).
-- Bundle: the calendar is its own async chunk, `static/js/async/83353.*.js` 75.2 kB / 19.7 kB gzip, not in the initial `index` bundle. Total build 66369.1 kB → 66479.5 kB (+110.4 kB, +29.3 kB gzip) against the session start; the initial `index` bundle grew 34.9 kB (+9.5 kB gzip), which is the new fa.json text (37.2 kB of added lines; all locale files ship in the initial bundle, as before).
-- Browser: `32-date-picker-rtl.png` (dashboard filter, trigger «۱۴۰۴/۱۲/۲۵», grid «اسفند ۱۴۰۴», `dir=rtl`), `33-usage-log-range-picker-rtl.png` (trigger «۱۴۰۵/۰۷/۰۳ ۰۰:۰۰ ~ …», start input value `2026-09-25T00:00`), `41-date-picker-en.png` (English unchanged, «December 2025»).
+Leave out of every PR: `.fa-review/` and all hand-off commits (`e968fcf`, `39b326f`, `d263b5f`, `a498835`, `251e669` and this session's), the merge commit `bc388d4` (the chart fix goes as its own PR), and the scratch scripts. Nothing on the branch refers to a specific deployment. Order: chart fix and billing fix first, then 1, 2, 3 (+4), 7; 5 and 6 whenever upstream agrees to the behaviour change.
 
-## D. Audit values
-
-- `renderAuditContent(other, t, locale)`: `role` numbers (0, 1, 10, 100) are shown with the `lib/roles.ts` labels (Guest, User, Admin, Super Admin); `method` with `loginMethodLabel` (except the `generic` descriptor, whose `{{method}}` is the HTTP method); unknown role numbers stay as recorded.
-- The audit viewer's role field and actor role use the same labels instead of `root/admin/user/guest` (in every language, as answered during the session). The 8 upstream tests that asserted the raw names now assert the labels.
-- Quota amounts in the descriptors follow the interface locale: `buildQuotaAuditOperation`, `renderAuditContent` and `buildAuditDetails` take it from the callers (usage-log columns and details dialog, audit columns and details dialog).
-- `loginMethodLabel` accepts a plain `(key) => string` translator (TFunction still fits).
-- Test `usage-logs/lib/__tests__/audit-content-locale.test.ts` (8: en, fa and zh role labels, unknown role, en and fa methods, generic HTTP method, en and fa amounts). With the old sources: `14 failed / 42 passed` across it and the updated audit tests.
-- Browser: `35-audit-log-rtl.png` («ورود موفق با رمز عبور»), `36-audit-log-details-rtl.png` («کاربر ⁨demo-user⁩ ساخته شد (نقش ⁨کاربر⁩)», actor role «مدیر ارشد»), `34-usage-logs-details-rtl.png`.
-
-## E. Translation batch 5
-
-- **448 keys** added (0 existing values changed); `fa.json` now has **1800 keys**, 4978 fall back to English.
-- Wallet (billing history dialog, subscription plans card, subscription purchase dialog, Creem confirmation, payment hooks, subscription duration and reset labels), pricing and model pages (catalog, cards, table, sidebar and toolbar filters, empty states, model details with overview, performance, API and apps tabs, pricing breakdown, condition texts, parameter descriptions), model pricing panel, home, profile (daily check-in, sidebar modules), error pages (401, 403, 404, 500, 503) and the about page.
-- Every key was read at its call site, including keys passed through constants and label maps (`CAPABILITY_LABEL_KEYS`, `MODALITY_LABEL_KEYS`, `TIME_FUNC_LABELS`, billing variable labels, `descriptionKey`, `conditionText`, task price messages, `getPaymentMethodName`).
-- Left out on purpose: brand and product names (Stripe, Alipay, WeChat Pay, Waffo, OpenAI, Claude, Gemini, the project and author names), URLs and placeholders, identifiers that only matched the scan (`default`, `token`, `x`, `field`, `stream`, `uptime`, `USD`, `CNY`, `K`, `1M`, `s`), home constants that are not rendered (`GATEWAY_FEATURES`), `Auto` (the group name stays Latin, as in earlier batches), and the admin-only billing-expression editor messages in `pricing/lib/billing-expression/visual.ts` and its operator labels.
-- FSI/PDI around interpolated LTR values (`{{query}}`, `{{unit}}`, `{{currency}}`, `{{rate}} {{currency}}`, `{{start}}–{{end}}`, `{{first}}`/`{{second}}`, `{{condition}}`, `{{timezone}}`).
-- Written through `add-missing-keys.mjs` (created, run, deleted; fa only), then `bun run i18n:sync` and `bun run i18n:check-fa`. The first check-fa run flagged `IPها` (Latin word with a Persian affix); rephrased to «نشانی‌های IP».
-
-## Verification (feat/fa-locale)
+## G. Verification (feat/fa-locale)
 
 All from `web/` unless noted.
 
 | Command | Result |
 | --- | --- |
+| `git remote -v`, `git push --dry-run origin HEAD`, dry run to a new branch | origin `https://github.com/yaser-k/new-api-fork`; both dry runs accepted (after fast-forwarding the local branch from `d263b5f` to `251e669`) |
 | `git fetch upstream main` | `upstream/main` = `c2b7a9a`; push URL `DISABLED` |
-| `bun install` | 1203 packages; after `bun add`, 3 more |
+| `bun install` | 1206 packages |
 | `bun run typecheck` | `tsgo -b`, exit 0 |
-| `bun run lint` | exit 1: **163 errors, 65 warnings**; `upstream/main` (clean worktree): **182 errors, 66 warnings**; errors only on this branch (by file, rule and message): **none** |
-| `bunx oxlint -c .oxlintrc.json <148 files changed vs upstream/main>` | exit 0, **0 errors**, 8 warnings, all pre-existing (`sync-i18n.mjs` style, `no-danger` in footer, `self-closing-comp` in redemptions columns) |
-| `bun run test` | `Test Files 190 passed (190)`, `Tests 2286 passed (2286)`, exit 0 |
-| `bun run build` | exit 0 (sizes in C) |
-| `bun run i18n:sync` | exit 0; fa `partial`, missingCount 4978, extras 0, untranslated 0; the seven required locales missing 0 |
-| `bun run i18n:check-fa` | `check-fa: 1800 keys, no findings`, exit 0 |
-| `git diff --stat upstream/main -- web/src/i18n/locales/` | only `fa.json` (1804 insertions) |
+| `bun run lint` | exit 1: **151 errors, 65 warnings**; `upstream/main` (clean worktree with its own install): **182 errors, 66 warnings**; errors only on this branch (by file, rule and message): **none** |
+| `bunx oxlint -c .oxlintrc.json <159 files changed vs upstream/main>` | exit 0, **0 errors**, 8 warnings, all pre-existing (`sync-i18n.mjs` style ×6, `no-danger` in footer, `self-closing-comp` in redemptions columns) |
+| `bunx oxfmt --check <same files>` | one file reported, `cost-display.test.tsx`, which is reported on `upstream/main` too (its upstream lines were restored) |
+| `bun run test` | `Test Files 196 passed (196)`, `Tests 2301 passed (2301)`, exit 0 |
+| `bun run build` | exit 0, total 66499.8 kB / 20505.7 kB gzip; `index` 4864.1 kB; Persian calendar chunk `async/83353.*.js` 75.2 kB / 19.7 kB |
+| `bun run i18n:sync` | exit 0; fa `partial`, missingCount 4742, extras 0, untranslated 0; the seven required locales missing 0 |
+| `bun run i18n:check-fa` | `check-fa: 2036 keys, no findings`, exit 0 |
+| `git diff --stat upstream/main -- web/src/i18n/locales/` | only `fa.json` (2040 insertions) |
 | `go build -o <scratch>/new-api-feat .` (repo root, Go 1.25.1) | exit 0, embeds the fresh `web/dist` |
 
 ### Running app
 
 ```
+# scripts/start-server.sh equivalent (scratch directory, SQLite, rate limits off for the scratch server only)
 GLOBAL_WEB_RATE_LIMIT_ENABLE=false GLOBAL_API_RATE_LIMIT_ENABLE=false CRITICAL_RATE_LIMIT_ENABLE=false \
   SQLITE_PATH="<scratch>/app-feat/one-api.db?_busy_timeout=30000" PORT=3300 <scratch>/new-api-feat --log-dir <scratch>/app-feat/logs
-python3 .fa-review/scripts/seed.py http://127.0.0.1:3300 <scratch>/app-feat/one-api.db
-node .fa-review/scripts/shots5.mjs http://127.0.0.1:3300 .fa-review fa     # run from a folder that can import playwright
-node .fa-review/scripts/shots5.mjs http://127.0.0.1:3300 .fa-review en
-node .fa-review/scripts/shots5.mjs http://127.0.0.1:3301 .fa-review chart-en 46-upstream-chart-before-en   # upstream/main binary, copy of the DB
-node .fa-review/scripts/shots5.mjs http://127.0.0.1:3302 .fa-review chart-en 47-upstream-chart-after-en    # fix branch binary, copy of the DB
+python3 .fa-review/scripts/seed.py  http://127.0.0.1:3300 <scratch>/app-feat/one-api.db   # /api/setup creates the local admin, demo data
+python3 .fa-review/scripts/seed6.py http://127.0.0.1:3300 <scratch>/app-feat/one-api.db   # compliance, redemption codes, a plan, top-ups
+node .fa-review/scripts/shots6.mjs http://127.0.0.1:3300 .fa-review fa                    # from a folder that can import playwright
+node .fa-review/scripts/shots6.mjs http://127.0.0.1:3300 .fa-review audit-fa
+python3 .fa-review/scripts/seed6.py http://127.0.0.1:3300 lang en
+# stop, copy the database to two more scratch folders, start upstream/main on 3301 and the fix branch on 3302
+node .fa-review/scripts/shots6.mjs http://127.0.0.1:3300 .fa-review audit-en 68-audit-log-en
+node .fa-review/scripts/shots6.mjs http://127.0.0.1:3301 .fa-review audit-en 69-audit-log-en-upstream
+node .fa-review/scripts/shots6.mjs http://127.0.0.1:3301 .fa-review billing 70-billing-history-before-en
+node .fa-review/scripts/shots6.mjs http://127.0.0.1:3302 .fa-review billing 71-billing-history-after-en
+node .fa-review/scripts/shots6.mjs http://127.0.0.1:3301 .fa-review billing 72-billing-history-before-zh zhCN
+node .fa-review/scripts/shots6.mjs http://127.0.0.1:3302 .fa-review billing 73-billing-history-after-zh zhCN
 ```
 
-- The rate limits were turned off for the scratch server only: the screenshot runs sign in many times and load many assets, and the default login limit (20 per 20 minutes) and web limit (120 per 3 minutes) answered 429.
-- Seed additions this session: one channel (so pricing lists models), hourly `quota_data` for two users and three models from 2025-12-27 to 2026-01-03 and from 2026-03-15 to 2026-03-23 (UTC; 408 rows), and one consume log in each period.
-- The dashboard range rolls back from "now", so the script moves the page clock (`page.clock.setSystemTime`); the other screens use a fresh browser context without a fake clock, because it stalls the page transitions.
-
-Playwright 1.56.1 (global), Chromium 141.0.7390.37 headless, 1440×900, light theme, UTC, browser locale `fa-IR` or `en-US`. Output of the fa run:
+Playwright 1.56.1 (global), Chromium 141.0.7390.37 headless, 1440×900, light theme, UTC, browser locale `fa-IR`, `en-US` or `zh-CN`. Excerpt of the fa run:
 
 ```
 page: dir=rtl lang=fa
-date picker trigger: «۱۴۰۴/۱۲/۲۵»
-calendar grid label: «اسفند ۱۴۰۴»
-calendar dir: rtl
-range trigger: «۱۴۰۵/۰۷/۰۳ ۰۰:۰۰ ~ ۱۴۰۵/۰۷/۰۳ ۱۹:۱۹»
-range start input value: 2026-09-25T00:00
-usage-log details column: ["管理员补单成功，充值金额: ＄20.000000，支付金额：20.000000",
-  "افزایش سهمیۀ کاربر «⁨demo-user⁩» (شناسه: 2) · سهمیۀ درخواستی: ⁨‎$۵⁩ · ‎$۰ → ‎$۵",
-  "ورود موفق با رمز عبور", …]
-audit dialog excerpt: "کاربر ⁨demo-user⁩ ساخته شد (نقش ⁨کاربر⁩) … انجام‌دهنده admin (ID: 1) نقش مدیر ارشد … نقش کاربر …"
+home terminal dir: ltr
+profile handle: «@admin» dir=auto
+pricing toggles: ["/1M","/1K"]
+pricing perf values: ["—s","—t/s","—s","—t/s","—s","—t/s"]
+usage-log throughput: «127 t/s» dir=ltr
+delete invalid dialog: «کدهای شارژ نامعتبر حذف شوند؟ با این کار همۀ کدهای شارژ استفاده‌شده, غیرفعال، و منقضی حذف می‌شوند. …»
 console errors: 401 on the pre-login session probe (once per sign-in); ERR_CERT_AUTHORITY_INVALID and
   ERR_TUNNEL_CONNECTION_FAILED for external resources blocked by the sandbox proxy
 ```
 
-Screenshots (new in this session):
+- While writing the script, one run clicked the first row-menu item on the users page (Disable) instead of Edit; demo-user was re-enabled through `/api/user/manage`. The audit log therefore also lists a disable and an enable event for demo-user.
+- Blank check (main area, sidebar excluded, 200×120 sample): every new screenshot has 236 or more colours; the session 5 blank Nowruz capture had 7.
 
-- `30-dashboard-year-boundary-rtl.png`, `31-dashboard-nowruz-rtl.png`: Solar Hijri chart axes
-- `32-date-picker-rtl.png`: open Persian calendar (dashboard filter)
-- `33-usage-log-range-picker-rtl.png`: open usage-log range picker
-- `34-usage-logs-details-rtl.png`: usage logs, details column
-- `35-audit-log-rtl.png`, `36-audit-log-details-rtl.png`: audit log with roles and sign-in methods
-- `37-wallet-rtl.png`, `38-wallet-billing-history-rtl.png`: wallet and billing history
-- `39-pricing-rtl.png`, `39b-model-detail-rtl.png`: pricing and model detail
-- `42-home-rtl.png`, `43-profile-rtl.png`, `44-error-404-rtl.png`, `45-about-rtl.png`
-- `40-dashboard-year-boundary-en.png`, `41-date-picker-en.png`: English unchanged
-- `46-upstream-chart-before-en.png`, `47-upstream-chart-after-en.png`: upstream branch before and after
+### Screenshots (new or retaken in this session)
+
+- `30-dashboard-year-boundary-rtl.png`, `31-dashboard-nowruz-rtl.png` (retaken, not blank)
+- `60-home-terminal-rtl.png`, `61-profile-rtl.png`, `62-pricing-rtl.png`, `63-usage-logs-timing-rtl.png` (C; they supersede `42-home-rtl.png`, `43-profile-rtl.png`, `39-pricing-rtl.png`)
+- `64-users-rtl.png`, `64b-user-drawer-rtl.png`, `65-redemption-codes-rtl.png`, `65b-redemption-delete-invalid-rtl.png`, `66-subscriptions-rtl.png` (E)
+- `67-audit-log-rtl.png`, `67b-audit-log-details-rtl.png` (Persian), `68-audit-log-en.png`, `68-audit-log-en-details.png` (feat, English), `69-audit-log-en-upstream.png`, `69-audit-log-en-upstream-details.png` (upstream/main, English)
+- `70`–`73-billing-history-*` (upstream branch, before and after, English and Simplified Chinese)
 
 ## Remaining RTL and locale issues
 
-1. **Billing history status is English in every language**: `wallet/lib/billing.ts` `STATUS_CONFIG.label` reaches `StatusBadge` without `t()` (upstream code; zh shows "Success" too). A candidate for another small upstream fix.
-2. **Model detail footnote** «قیمت‌ها به‌ازای 1M tokens»: `model-details.tsx` appends a hardcoded English `tokens` after `t('Prices shown per')`.
-3. **Home terminal demo**: the request and response code lines render right to left (quotes and braces move); the block needs `dir="ltr"`. The features section is not visible in a full-page capture (scroll-triggered animation), and the footer copyright line is English.
-4. **Profile header** shows `@admin` as `admin@` (RTL reordering of a leading `@`).
-5. **Pricing**: token unit toggles `1K/` `1M/` and the empty metrics `t/s–`, `s–` show their neutral characters on the wrong side.
-6. **Audit details**: actor `admin (ID: 1)` keeps an English `ID`; the dialog's close label is English.
-7. **Native date and time inputs** (range picker, the time input next to the date pickers: `06:00 PM`) follow the browser locale, not the interface language.
-8. **Charts**: the time axis runs left to right in RTL (the same as other RTL chart libraries; not changed).
-9. Earlier items still open: backend content in Chinese or English (`管理员补单成功…`, Go i18n is en/zh only), `{{action}}` raw in `Performed {{action}} on user`, the usage-log `Tokens` header, throughput `t/s 127` order, users page quota cell `-ml-1.5`, `mr-2`/`ml-2` on button spinners, `rtl:` also matching `:lang(fa)` when LTR is forced, carousel arrows, other `<pre>` blocks, the Public Sans font name mismatch.
+1. **Dashboard chart header total** «مجموع: 22.98$»: `formatQuotaTotal` in `dashboard/lib/charts.ts` has no locale and the value is not isolated, so the `$` moves to the end and the digits are Latin.
+2. **Subscriptions list**: duration «1 ماه» and priority «10» use Latin digits (raw values), the price `$9.90` is not formatted with the locale, and the status badges use `-ml-1.5` and the verbs Enable/Disable (see C).
+3. **Hard-coded strings** in the C list, and the fragment sentence with a Latin comma on the redemption codes page.
+4. **Audit details**: `admin (ID: 1)` keeps an English `ID`; the dialog close label is English (session 5 item, still open).
+5. **Native date and time inputs** follow the browser locale (session 5 item).
+6. **Charts**: the time axis runs left to right in RTL (not changed).
+7. Earlier items still open: backend content in Chinese or English (Go i18n is en/zh only), `{{action}}` raw in `Performed {{action}} on user` and now `Failed to {{action}} user`, the users page actions cell `-ml-1.5`, `rtl:` also matching `:lang(fa)` when LTR is forced, carousel arrows, other `<pre>` blocks, the Public Sans font name mismatch.
 
 ## New open questions
 
-1. **Billing status label**: fix upstream-style on its own branch (one `t()` plus a test), like the chart order?
-2. **Home page RTL**: set `dir="ltr"` on the terminal demo code block in the fork, or propose it upstream (it only matters for RTL)?
-3. **Legend order**: the chart legend now follows the chronological data order (the first time point's models). Keep, or also fix the legend to a stable model order in the upstream branch?
-4. **Next batch**: the remaining admin screens (channels, models, users, system settings), or the security and API key pages first?
+1. **Number formatting (split PR 5)**: propose the interface-locale formatting upstream as a behaviour change for all languages, or gate it to Persian in the fork so every other language matches upstream everywhere (as done for the audit amounts this session)?
+2. **Legal consent join (split PR 6)**: keep `t('and')` (changes the English sentence), or restore `' and the '` for other languages?
+3. **Upstream candidates from C**: open one upstream fix for the hard-coded strings (Tokens header, Pay/Save/Minimum/% OFF, model detail tokens, binding ID labels) and one for the subscription status verbs?
+4. **Next batch**: channels and models admin pages, or system settings?

@@ -145,8 +145,12 @@ export function PricingToolbar(props: PricingToolbarProps) {
             size='sm'
             aria-label={t('Token unit')}
           >
-            <ToggleGroupItem value='M'>/1M</ToggleGroupItem>
-            <ToggleGroupItem value='K'>/1K</ToggleGroupItem>
+            <ToggleGroupItem value='M'>
+              <bdi dir='ltr'>/1M</bdi>
+            </ToggleGroupItem>
+            <ToggleGroupItem value='K'>
+              <bdi dir='ltr'>/1K</bdi>
+            </ToggleGroupItem>
           </ToggleGroup>
 
           <DropdownMenu modal={false}>

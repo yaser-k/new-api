@@ -147,7 +147,9 @@ export function ProfileHeader({ profile, loading }: ProfileHeaderProps) {
             </div>
 
             <div className='text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs sm:gap-x-4 sm:text-sm'>
-              <span className='truncate'>@{profile.username}</span>
+              <span className='truncate' dir='auto'>
+                @{profile.username}
+              </span>
               {profile.email && (
                 <>
                   <span>•</span>

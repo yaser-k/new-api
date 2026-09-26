@@ -533,7 +533,7 @@ export function RechargeFormCard({
               variant='outline'
               className='h-9 px-4'
             >
-              {redeeming && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+              {redeeming && <Loader2 className='me-2 h-4 w-4 animate-spin' />}
               {t('Redeem')}
             </Button>
           </div>

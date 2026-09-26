@@ -207,7 +207,8 @@ export function HeroTerminalDemo(props: HeroTerminalDemoProps) {
   const accent = ACCENT_CLASSES[demo.accent]
 
   return (
-    <div className={cn('mx-auto w-full max-w-2xl', props.className)}>
+    // A terminal with code: left to right in every interface language.
+    <div dir='ltr' className={cn('mx-auto w-full max-w-2xl', props.className)}>
       <div
         className={cn(
           'overflow-hidden rounded-2xl border backdrop-blur-sm',

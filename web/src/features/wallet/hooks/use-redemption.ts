@@ -1,7 +1,3 @@
-import i18next from 'i18next'
-import { useState, useCallback } from 'react'
-import { toast } from 'sonner'
-
 /*
 Copyright (C) 2023-2026 QuantumNous
 
@@ -20,6 +16,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import i18next from 'i18next'
+import { useState, useCallback } from 'react'
+import { toast } from 'sonner'
+
 import { toIntlLocale } from '@/i18n/languages'
 import { getSelf } from '@/lib/api'
 import { formatQuota } from '@/lib/format'

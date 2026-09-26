@@ -1,14 +1,3 @@
-import { flexRender, type Cell } from '@tanstack/react-table'
-import { ChevronRight, KeyRound } from 'lucide-react'
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import { CopyButton } from '@/components/copy-button'
-import { Dialog } from '@/components/dialog'
-import { GroupBadge } from '@/components/group-badge'
-import { StatusBadge, type StatusVariant } from '@/components/status-badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 /*
 Copyright (C) 2023-2026 QuantumNous
 
@@ -27,6 +16,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { flexRender, type Cell } from '@tanstack/react-table'
+import { ChevronRight, KeyRound } from 'lucide-react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { CopyButton } from '@/components/copy-button'
+import { Dialog } from '@/components/dialog'
+import { GroupBadge } from '@/components/group-badge'
+import { StatusBadge, type StatusVariant } from '@/components/status-badge'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { toIntlLocale } from '@/i18n/languages'
 import { getUserAvatarFallback, getUserAvatarStyle } from '@/lib/avatar'
 import {

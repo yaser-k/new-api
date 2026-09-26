@@ -5962,6 +5962,7 @@
     "This will append 2 template rules (Codex CLI and Claude CLI) to the existing rule list.": "Thao tác này sẽ thêm 2 quy tắc mẫu (Codex CLI và Claude CLI) vào danh sách quy tắc hiện có.",
     "This will clear custom pricing ratios and revert to upstream defaults.": "Điều này sẽ xóa các tỷ lệ giá tùy chỉnh và trở về mặc định ban đầu.",
     "This will delete all": "Thao tác này sẽ xóa tất cả",
+    "This will delete all <strong>used</strong>, <strong>disabled</strong>, and <strong>expired</strong> redemption codes.": "Thao tác này sẽ xóa tất cả mã đổi thưởng <strong>đã sử dụng</strong>, <strong>đã vô hiệu hóa</strong> và <strong>đã hết hạn</strong>.",
     "This will delete all channel affinity cache entries still in memory.": "Thao tác này sẽ xóa tất cả mục bộ nhớ đệm ưu tiên kênh còn trong bộ nhớ.",
     "This will delete temporary cache files that have not been used for more than 10 minutes": "Thao tác này sẽ xóa các tệp bộ nhớ đệm tạm không được sử dụng hơn 10 phút",
     "This will extend the deployment by the specified hours.": "Thao tác này sẽ kéo dài triển khai thêm số giờ được chỉ định.",

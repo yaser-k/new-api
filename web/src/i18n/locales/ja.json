@@ -5962,6 +5962,7 @@
     "This will append 2 template rules (Codex CLI and Claude CLI) to the existing rule list.": "既存のルールリストに2つのテンプレートルール（Codex CLIとClaude CLI）を追加します。",
     "This will clear custom pricing ratios and revert to upstream defaults.": "これにより、カスタム料金比率がクリアされ、上位のデフォルトに戻ります。",
     "This will delete all": "これによりすべて削除されます",
+    "This will delete all <strong>used</strong>, <strong>disabled</strong>, and <strong>expired</strong> redemption codes.": "<strong>使用済み</strong>、<strong>無効</strong>、<strong>期限切れ</strong>の引き換えコードをすべて削除します。",
     "This will delete all channel affinity cache entries still in memory.": "メモリ内のすべてのチャネルアフィニティキャッシュエントリが削除されます。",
     "This will delete temporary cache files that have not been used for more than 10 minutes": "10分以上使用されていない一時キャッシュファイルが削除されます",
     "This will extend the deployment by the specified hours.": "これにより、デプロイメントを指定された時間分延長します。",

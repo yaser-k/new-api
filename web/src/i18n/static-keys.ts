@@ -819,4 +819,6 @@ export const STATIC_I18N_KEYS = [
   'Vendor name and icon must not exceed 128 characters.',
   'Shown',
   'Not shown',
+  // Rendered through <Trans i18nKey>, which the t('...') scan does not match.
+  'This will delete all <strong>used</strong>, <strong>disabled</strong>, and <strong>expired</strong> redemption codes.',
 ] as const

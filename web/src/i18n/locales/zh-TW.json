@@ -5962,6 +5962,7 @@
     "This will append 2 template rules (Codex CLI and Claude CLI) to the existing rule list.": "這將在現有規則列表中追加 2 條模板規則（Codex CLI 和 Claude CLI）。",
     "This will clear custom pricing ratios and revert to upstream defaults.": "這將清除自訂定價比例並恢復到上游預設值。",
     "This will delete all": "這將刪除所有",
+    "This will delete all <strong>used</strong>, <strong>disabled</strong>, and <strong>expired</strong> redemption codes.": "這將刪除所有<strong>已使用</strong>、<strong>已停用</strong>和<strong>已過期</strong>的兌換碼。",
     "This will delete all channel affinity cache entries still in memory.": "這將刪除記憶體中所有的渠道親和性緩存條目。",
     "This will delete temporary cache files that have not been used for more than 10 minutes": "這將刪除超過 10 分鐘未使用的臨時緩存檔案",
     "This will extend the deployment by the specified hours.": "這將透過指定的小時數延長部署。",

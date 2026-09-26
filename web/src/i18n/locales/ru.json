@@ -5962,6 +5962,7 @@
     "This will append 2 template rules (Codex CLI and Claude CLI) to the existing rule list.": "Это добавит 2 шаблонных правила (Codex CLI и Claude CLI) к существующему списку правил.",
     "This will clear custom pricing ratios and revert to upstream defaults.": "Это очистит пользовательские ценовые коэффициенты и вернет к стандартным значениям поставщика.",
     "This will delete all": "Это удалит все",
+    "This will delete all <strong>used</strong>, <strong>disabled</strong>, and <strong>expired</strong> redemption codes.": "Будут удалены все <strong>использованные</strong>, <strong>отключённые</strong> и <strong>просроченные</strong> коды активации.",
     "This will delete all channel affinity cache entries still in memory.": "Это удалит все записи кэша привязки каналов из памяти.",
     "This will delete temporary cache files that have not been used for more than 10 minutes": "Будут удалены временные файлы кэша, не использовавшиеся более 10 минут",
     "This will extend the deployment by the specified hours.": "Это продлит развертывание на указанное количество часов.",

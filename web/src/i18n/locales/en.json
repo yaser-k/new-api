@@ -5962,6 +5962,7 @@
     "This will append 2 template rules (Codex CLI and Claude CLI) to the existing rule list.": "This will append 2 template rules (Codex CLI and Claude CLI) to the existing rule list.",
     "This will clear custom pricing ratios and revert to upstream defaults.": "This will clear custom pricing ratios and revert to upstream defaults.",
     "This will delete all": "This will delete all",
+    "This will delete all <strong>used</strong>, <strong>disabled</strong>, and <strong>expired</strong> redemption codes.": "This will delete all <strong>used</strong>, <strong>disabled</strong>, and <strong>expired</strong> redemption codes.",
     "This will delete all channel affinity cache entries still in memory.": "This will delete all channel affinity cache entries still in memory.",
     "This will delete temporary cache files that have not been used for more than 10 minutes": "This will delete temporary cache files that have not been used for more than 10 minutes",
     "This will extend the deployment by the specified hours.": "This will extend the deployment by the specified hours.",

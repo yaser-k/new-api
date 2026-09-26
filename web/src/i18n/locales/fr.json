@@ -5962,6 +5962,7 @@
     "This will append 2 template rules (Codex CLI and Claude CLI) to the existing rule list.": "Cela ajoutera 2 règles modèles (Codex CLI et Claude CLI) à la liste de règles existante.",
     "This will clear custom pricing ratios and revert to upstream defaults.": "Cela effacera les ratios de tarification personnalisés et rétablira les valeurs par défaut du fournisseur.",
     "This will delete all": "Cela supprimera tout",
+    "This will delete all <strong>used</strong>, <strong>disabled</strong>, and <strong>expired</strong> redemption codes.": "Cela supprimera tous les codes de rachat <strong>utilisés</strong>, <strong>désactivés</strong> et <strong>expirés</strong>.",
     "This will delete all channel affinity cache entries still in memory.": "Cela supprimera toutes les entrées de cache d'affinité de canal encore en mémoire.",
     "This will delete temporary cache files that have not been used for more than 10 minutes": "Cela supprimera les fichiers de cache temporaires inutilisés depuis plus de 10 minutes",
     "This will extend the deployment by the specified hours.": "Cela prolongera le déploiement du nombre d'heures spécifié.",

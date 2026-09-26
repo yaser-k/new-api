@@ -16,9 +16,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import i18next from 'i18next'
 import { afterEach, describe, expect, it } from 'vitest'
+
+import fa from '@/i18n/locales/fa.json'
 
 import { LegalConsent } from '../legal-consent'
 
@@ -36,6 +38,25 @@ function renderConsent() {
 describe('LegalConsent', () => {
   afterEach(async () => {
     await i18next.changeLanguage('en')
+  })
+
+  it('in Persian, renders one sentence with both links and no English words', async () => {
+    i18next.addResourceBundle('fa', 'translation', fa.translation, true, true)
+    renderConsent()
+
+    await act(async () => {
+      await i18next.changeLanguage('fa')
+    })
+
+    const label = screen.getByRole('link', {
+      name: 'توافق‌نامۀ کاربری',
+    }).parentElement
+    expect(label?.textContent).toBe(
+      'توافق‌نامۀ کاربری و سیاست حریم خصوصی را خوانده‌ام و می‌پذیرم.'
+    )
+    expect(
+      screen.getByRole('link', { name: 'سیاست حریم خصوصی' })
+    ).toHaveAttribute('href', '/privacy-policy')
   })
 
   it('aligns the consent text to the inline start so it follows RTL', () => {

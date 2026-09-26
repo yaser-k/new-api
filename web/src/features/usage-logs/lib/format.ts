@@ -25,6 +25,7 @@ import {
   type ParsedTier,
 } from '@/features/pricing/lib/billing-expr'
 import { loginMethodLabel } from '@/features/security/components/login-session-utils'
+import { isPersianIntlLocale } from '@/i18n/languages'
 import { ROLE, getRoleLabelKey } from '@/lib/roles'
 
 import type { UsageLog } from '../data/schema'
@@ -566,9 +567,10 @@ const AUDIT_TEMPLATES: Record<string, string> = {
 /**
  * Render the localized content of an operation log from its structured
  * `other.op` descriptor. Returns null when the log has no recognized action,
- * letting callers fall back to the raw `content` field. Role and sign-in
- * method values are shown as their translated labels, and quota amounts
- * follow `locale` (the interface locale from `toIntlLocale`).
+ * letting callers fall back to the raw `content` field. When `locale` (the
+ * interface locale from `toIntlLocale`) is Persian, role and sign-in method
+ * values are shown as their translated labels and quota amounts follow the
+ * locale; other languages show the recorded values.
  */
 export function renderAuditContent(
   other: LogOtherData | null | undefined,
@@ -608,6 +610,7 @@ export function renderAuditContent(
     return `${quotaOperation.summary} · ${quotaOperation.description}`
   }
   const params = { ...op.params }
+  if (!isPersianIntlLocale(locale)) return t(template, params)
   if (
     typeof params.role === 'number' &&
     Object.values<number>(ROLE).includes(params.role)

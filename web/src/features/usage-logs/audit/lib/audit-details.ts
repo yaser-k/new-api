@@ -19,12 +19,29 @@ For commercial licensing, please contact support@quantumnous.com
 import type { TFunction } from 'i18next'
 
 import { loginMethodLabel } from '@/features/security/components/login-session-utils'
-import { getRoleLabelKey } from '@/lib/roles'
+import { isPersianIntlLocale } from '@/i18n/languages'
+import { ROLE, getRoleLabelKey } from '@/lib/roles'
 
 import { renderAuditContent } from '../../lib/format'
 import { buildQuotaAuditOperation } from '../../lib/quota-audit-operation'
 import type { LogOtherData } from '../../types'
 import type { AuditLog } from '../api'
+
+const AUDIT_ROLE_NAMES: Record<number, string> = {
+  [ROLE.GUEST]: 'guest',
+  [ROLE.USER]: 'user',
+  [ROLE.ADMIN]: 'admin',
+  [ROLE.SUPER_ADMIN]: 'root',
+}
+
+/**
+ * How the audit viewer shows a role: the translated role label in Persian,
+ * the raw role name (root, admin, user, guest) in every other language.
+ */
+function auditRoleName(role: number, t: TFunction, locale?: string): string {
+  if (isPersianIntlLocale(locale)) return t(getRoleLabelKey(role))
+  return AUDIT_ROLE_NAMES[role]
+}
 
 const TOKEN_AUDIT_OPERATIONS: Record<
   string,
@@ -354,6 +371,15 @@ export function buildAuditDetails(
       summaryParams[key] = value
     }
   }
+  if (typeof summaryParams.method === 'string') {
+    summaryParams.method = loginMethodLabel(summaryParams.method, t)
+  }
+  if (
+    typeof summaryParams.role === 'number' &&
+    [0, 1, 10, 100].includes(summaryParams.role)
+  ) {
+    summaryParams.role = auditRoleName(summaryParams.role, t, locale)
+  }
 
   let fallback = t('Operation audit')
   if (entry.category === 'login') fallback = t('Login')
@@ -391,7 +417,7 @@ export function buildAuditDetails(
   }
   let actorRole = ''
   if ([1, 10, 100].includes(entry.actor_role)) {
-    actorRole = t(getRoleLabelKey(entry.actor_role))
+    actorRole = auditRoleName(entry.actor_role, t, locale)
   }
   const authMethod =
     entry.auth_method ||
@@ -444,7 +470,7 @@ export function buildAuditDetails(
     typeof params.role === 'number' &&
     [0, 1, 10, 100].includes(params.role)
   ) {
-    params.role = t(getRoleLabelKey(params.role))
+    params.role = auditRoleName(params.role, t, locale)
   }
   if (typeof params.method === 'string') {
     params.method = loginMethodLabel(params.method, t)

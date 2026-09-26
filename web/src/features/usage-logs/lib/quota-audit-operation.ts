@@ -16,6 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { isPersianIntlLocale } from '@/i18n/languages'
 import { formatLogQuota } from '@/lib/format'
 
 type Translate = (key: string, opts?: Record<string, unknown>) => string
@@ -37,7 +38,12 @@ const QUOTA_OPERATIONS: Record<string, { label: string; named: string }> = {
 
 function quotaText(value: unknown, t: Translate, locale?: string): string {
   if (typeof value === 'number' && Number.isFinite(value)) {
-    return formatLogQuota(value, locale)
+    // Persian amounts follow the interface locale. Other languages keep the
+    // runtime default locale, so their audit text stays as it was.
+    return formatLogQuota(
+      value,
+      isPersianIntlLocale(locale) ? locale : undefined
+    )
   }
   if (typeof value === 'string' && value.trim()) return value
   return t('Not recorded')

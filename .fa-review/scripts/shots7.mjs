@@ -138,24 +138,13 @@ if (mode === 'fa') {
 
   await signIn()
 
-  // Channels list and the edit drawer of the tagged Azure channel
-  await goto('/channels')
+  // Channels list (card view by default) and the edit drawer of the tagged
+  // Azure channel, the first card.
+  await goto('/channels', 'main h1, main h2')
+  await page.getByText('azure-east').first().waitFor()
   await page.waitForTimeout(800)
-  console.log(
-    `channels header: ${JSON.stringify(await page.locator('table thead th').allInnerTexts())}`
-  )
   await shot('81-channels-rtl')
-  const row = page.locator('table tbody tr', { hasText: 'azure-east' }).first()
-  if (!(await row.count())) {
-    // Tag mode groups tagged channels; expand the tag row first.
-    await page
-      .locator('table tbody tr', { hasText: 'production' })
-      .first()
-      .click()
-    await settle()
-  }
-  const target = page.locator('table tbody tr', { hasText: 'azure-east' }).first()
-  await target.getByRole('button').last().click()
+  await page.getByRole('button', { name: 'باز کردن منو' }).first().click()
   await settle(400)
   await page.getByRole('menuitem', { name: 'ویرایش' }).first().click()
   await page.getByRole('dialog').first().waitFor()
@@ -176,9 +165,7 @@ if (mode === 'fa') {
   )
   await shot('83-models-rtl')
   const modelRow = page.locator('table tbody tr', { hasText: 'gpt-4o-mini' }).first()
-  await modelRow.getByRole('button').last().click()
-  await settle(400)
-  await page.getByRole('menuitem', { name: 'ویرایش' }).first().click()
+  await modelRow.getByRole('button', { name: 'ویرایش' }).click()
   await page.getByRole('dialog').first().waitFor()
   await settle(1500)
   await waitOpaque('[role="dialog"]')

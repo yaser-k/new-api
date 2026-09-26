@@ -3051,6 +3051,7 @@
     "Invited Users": "Приглашенные пользователи",
     "Invitee Reward": "Награда приглашенному",
     "Inviter": "Пригласивший",
+    "Inviter ID: {{id}}": "ID пригласившего: {{id}}",
     "Inviter Reward": "Награда приглашающему",
     "Invites": "Приглашения",
     "Invoke developer-defined functions with structured arguments": "Вызывать заданные разработчиком функции со структурированными аргументами",

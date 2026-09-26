@@ -3051,6 +3051,7 @@
     "Invited Users": "招待されたユーザー",
     "Invitee Reward": "招待された側の報酬",
     "Inviter": "招待者",
+    "Inviter ID: {{id}}": "招待者 ID：{{id}}",
     "Inviter Reward": "招待した側の報酬",
     "Invites": "招待",
     "Invoke developer-defined functions with structured arguments": "構造化された引数で開発者定義の関数を呼び出す",

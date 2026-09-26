@@ -3051,6 +3051,7 @@
     "Invited Users": "受邀用户",
     "Invitee Reward": "受邀者奖励",
     "Inviter": "邀请人",
+    "Inviter ID: {{id}}": "邀请人 ID：{{id}}",
     "Inviter Reward": "邀请者奖励",
     "Invites": "邀请",
     "Invoke developer-defined functions with structured arguments": "使用结构化参数调用开发者定义的函数",

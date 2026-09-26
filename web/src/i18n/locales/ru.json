@@ -6069,6 +6069,7 @@
     "Tokens Only": "Только токены",
     "Tokens per minute": "Токенов в минуту",
     "Tokens since launch": "Токенов с запуска",
+    "Tokens_usage": "Токены",
     "Tokens-only mode will show raw quota values regardless of this toggle.": "Режим «только токены» будет показывать необработанные значения квот независимо от этого переключателя.",
     "Too many active login sessions. On a device where you are already signed in, open Login sessions and use “Sign out other sessions” to revoke them. If you cannot access a signed-in device, reset your password to sign out all sessions.": "Достигнут лимит активных сеансов входа. На устройстве, где вы уже вошли, откройте «Сеансы входа» и выберите «Завершить другие сеансы», чтобы отозвать их. Если доступа к такому устройству нет, сбросьте пароль, чтобы завершить все сеансы.",
     "Too many files. Some were not added.": "Слишком много файлов. Некоторые не были добавлены.",

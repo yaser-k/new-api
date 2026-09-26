@@ -824,4 +824,6 @@ export const STATIC_I18N_KEYS = [
   'I have read and agree to the <agreement>User Agreement</agreement> and the <privacy>Privacy Policy</privacy>.',
   'I have read and agree to the <agreement>User Agreement</agreement>.',
   'I have read and agree to the <privacy>Privacy Policy</privacy>.',
+  // Rendered through <Trans i18nKey>, which the t('...') scan does not match.
+  'This will delete all <strong>used</strong>, <strong>disabled</strong>, and <strong>expired</strong> redemption codes.',
 ] as const

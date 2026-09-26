@@ -19,6 +19,7 @@ Branches: `feat/fa-locale` (the fork), and two new branches from `upstream/main`
 ```
 fix/legal-consent-sentence (from upstream/main c2b7a9a)
 27317a9 fix(web): translate the legal consent as one sentence
+6a660f7 fix(web): translate the sign-in and sign-up terms footer as one sentence   (follow-up)
 
 fix/ui-label-strings (from upstream/main c2b7a9a)
 ae1fdc0 fix(web): translate the usage log Tokens column header
@@ -37,6 +38,9 @@ aaba1b0 feat(i18n): translate the keys from the legal consent and UI label fixes
 cb4c311, 44306fa (.fa-review scripts and screenshots)
 8a76a75 feat(i18n): translate the seventh Persian batch, channels (1105 keys)
 ada5af2 feat(i18n): translate the seventh Persian batch, models (372 keys)
+dfdc4bb (hand-off)
+6f7168b Merge branch 'fix/legal-consent-sentence' into feat/fa-locale   (follow-up: terms footer)
+c6aaad5 feat(i18n): translate the terms footer sentences in Persian
 (this hand-off commit)
 ```
 
@@ -47,6 +51,15 @@ ada5af2 feat(i18n): translate the seventh Persian batch, models (372 keys)
 - Values for all seven required locales through the skill's `add-missing-keys.mjs`, then `bun run i18n:sync`. French and Russian get their own articles and cases (l'Accord / la Politique; «принимаю … Политику»), Japanese puts the verb at the end.
 - Test `auth/components/__tests__/legal-consent-sentence.test.tsx` (7 cases: 3 English equal to upstream, links and hrefs, 3 Simplified Chinese without Latin letters). On upstream code: `3 failed | 4 passed` (`Received: "我已阅读并同意 用户协议 and the 隐私政策."`); with the fix `7 passed`.
 - Lint: the changed files had no errors before or after, so no lint commit. Nothing Persian on the branch.
+
+### A2. Follow-up: the terms footer (commit 6a660f7)
+
+- Bug: `auth/components/terms-footer.tsx`, rendered below the sign-in and sign-up forms, passed its lead text and both link labels untranslated and only translated the joining word: Simplified Chinese showed `By creating an account, you agree to our User Agreement 和 Privacy Policy.`, Persian the same English line with «و».
+- Fix: six keys, one per variant (sign-in, sign-up) and case (both documents, user agreement only, privacy policy only), in a `TERMS_FOOTER_KEYS` constant and rendered through `<Trans>` with the links as `agreement` and `privacy` components, the same way as `legal-consent.tsx`; registered in `static-keys.ts`. Links keep their hrefs and classes; nothing renders when neither document is configured (as before).
+- Values for the seven required locales through the script, then `bun run i18n:sync`.
+- Test `auth/components/__tests__/terms-footer-sentence.test.tsx` (14 cases: 6 English equal to upstream's text for both variants and all three cases, hrefs, nothing rendered without documents, 6 Simplified Chinese without Latin letters). On upstream code: `6 failed | 8 passed` (every English case passes, every Chinese case fails, e.g. `Received: "By clicking sign in, you agree to our User Agreement 和 Privacy Policy."`); with the fix `14 passed`.
+- Lint: `terms-footer.tsx` had no errors before or after, the new test and `static-keys.ts` none, so no lint commit.
+- Merged into feat/fa-locale again (`6f7168b`, conflict in `static-keys.ts` only, both additions kept); Persian values and a Persian test (`terms-footer-persian.test.tsx`, both variants) in `c6aaad5`.
 
 ## B. Upstream branch fix/ui-label-strings
 
@@ -91,12 +104,12 @@ Upstream-ready branches in the fork (each from `upstream/main`):
 
 | Branch | Head | Content |
 | --- | --- | --- |
-| `fix/dashboard-chart-time-order` | `04b86d9` | chart points ordered by timestamp (session 5); **merged** (`bc388d4`) |
+| `fix/dashboard-chart-time-order` | `81b140e` | chart points ordered by timestamp (session 5); **merged** (`bc388d4`). The branch now ends at `81b140e`: its lint-cleanup commit `04b86d9` was dropped from the branch, but feat/fa-locale still has it through the earlier merge `bc388d4`. When PRs are cut from feat/fa-locale, `04b86d9` belongs to no upstream branch: leave it out, or fold it into PR 1 if its lint fixes touch files that PR changes |
 | `fix/billing-status-label` | `6bf13ab` | billing history status through `t()` (session 6); not merged |
 | `fix/delete-account-confirm-label` | `747769c` | delete-account confirmation as one `Trans` sentence; not merged |
 | `fix/2fa-setup-step-label` | `6d614c0` | earlier session; not merged |
 | `fix/quota-insufficient-i18n` | `28b7893` | earlier session; not merged |
-| `fix/legal-consent-sentence` | `27317a9` | this session; **merged** (`44610c0`) |
+| `fix/legal-consent-sentence` | `6a660f7` | this session (consent line + terms footer); **merged** (`44610c0`, again `6f7168b`) |
 | `fix/ui-label-strings` | `3b86126` | this session; **merged** (`b2d14dc`) |
 
 `feat/fa-locale` contains, by merge, `fix/dashboard-chart-time-order`, `fix/legal-consent-sentence` and `fix/ui-label-strings`.
@@ -108,13 +121,13 @@ Upstream-ready branches in the fork (each from `upstream/main`):
 | 3 | `feat(web): Solar Hijri dates, chart axes and date pickers in Persian` | `0ea975e`, `c2369c8` + `42a98a2`, `170ba72`, `9d22fac` | display-date-locale, activity-time-cell-dates, login-session-dates, date-picker-display, calendar-persian, chart-time-locale | None |
 | 4 | `feat(web): Persian labels for audit roles and sign-in methods` | net of `f767402` + `9cd40a8` | audit-content-locale, details-locale | None (could fold into 3) |
 | 5 | `fix(web): format money and numbers in the interface language` | locale half of `f01c5af`*, `formatQuota` hunks of `c78c83f`*, the `locale` argument in `recharge-form-card.tsx` | format-quota-locale, format-currency-locale, amount-locale, summary-cards-locale, profile-header-locale | **Yes**: an English interface in a German browser shows `$1,234.5` instead of `1.234,5 $`; its own PR (decision 1) |
-| 6 | `feat(i18n): Persian translation batches` | `fa96f8b`, `551a8a3`, `795d296`, `4db67e2`, `3825299`, `aaba1b0`, `8a76a75`, `ada5af2` (fa.json, plus the Persian case in `legal-consent.test.tsx`) | `bun run i18n:check-fa` | None: only `fa.json` |
+| 6 | `feat(i18n): Persian translation batches` | `fa96f8b`, `551a8a3`, `795d296`, `4db67e2`, `3825299`, `aaba1b0`, `8a76a75`, `ada5af2`, `c6aaad5` (fa.json, plus the Persian cases in `legal-consent.test.tsx` and `terms-footer-persian.test.tsx`) | `bun run i18n:check-fa` | None: only `fa.json` |
 
 The old PR 6 (legal consent join) is dropped: it is the `fix/legal-consent-sentence` branch now. Leave out of every PR: `.fa-review/`, all hand-off commits, the merge commits (their branches go as their own PRs). Order: the upstream fix branches first, then 1, 2, 3 (+4), 6; 5 when upstream agrees to the behaviour change.
 
 ## E. Verification
 
-### feat/fa-locale (from `web/`)
+### feat/fa-locale (from `web/`; re-run after the terms footer follow-up at `c6aaad5`)
 
 | Command | Result |
 | --- | --- |
@@ -123,12 +136,12 @@ The old PR 6 (legal consent join) is dropped: it is the `fix/legal-consent-sente
 | `bun install` | done (1206 packages) |
 | `bun run typecheck` | `tsgo -b`, exit 0 |
 | `bun run lint` | exit 1: **150 errors, 65 warnings**; `upstream/main` (own worktree and install): **182 errors, 66 warnings**; errors only on this branch (by file, rule and message): **none** |
-| `bunx oxlint -c .oxlintrc.json <171 changed .ts/.tsx/.mjs files>` | exit 0, **0 errors**, 8 warnings, all pre-existing |
-| `bun run test` | `Test Files 203 passed (203)`, `Tests 2321 passed (2321)` |
-| `bun run build` | exit 0, total 66663.6 kB / 20548.6 kB gzip |
+| `bunx oxlint -c .oxlintrc.json <174 changed .ts/.tsx/.mjs files>` | exit 0, **0 errors**, 8 warnings, all pre-existing |
+| `bun run test` | `Test Files 205 passed (205)`, `Tests 2337 passed (2337)` |
+| `bun run build` | exit 0, total 66674.4 kB / 20550.4 kB gzip |
 | `bun run i18n:sync` | exit 0; fa partial, missing 3265, extras 0; seven required locales missing 0; no file changed |
-| `bun run i18n:check-fa` | `check-fa: 3524 keys, no findings` |
-| `git diff --stat upstream/main -- web/src/i18n/locales/` | `fa.json` +3528; en, fr, ja, ru, vi, zh-TW, zh +11 each: exactly the 3 keys from A and the 8 from B |
+| `bun run i18n:check-fa` | `check-fa: 3530 keys, no findings` |
+| `git diff --stat upstream/main -- web/src/i18n/locales/` | `fa.json` +3534; en, fr, ja, ru, vi, zh-TW, zh +17 each: exactly the 9 keys from A (3 consent + 6 footer) and the 8 from B |
 | `go build -o <scratch>/bin/new-api-feat .` (Go 1.25.1) | exit 0, embeds the fresh `web/dist` |
 
 ### Upstream branches (worktrees from `upstream/main`, `web/`)
@@ -138,9 +151,9 @@ The old PR 6 (legal consent join) is dropped: it is the `fix/legal-consent-sente
 | `bun install` | 1202 packages | 1202 packages |
 | `bun run typecheck` | exit 0 | exit 0 |
 | `bunx oxlint` on the changed files | exit 0, no findings | exit 0, no findings (after `4004f8f`) |
-| new tests | 7 passed; upstream code 3 failed / 4 passed | see table in B |
-| `bun run test` | 167 files, 2118 tests passed | 172 files, 2125 tests passed |
-| `bun run build` | exit 0, 66169.4 kB / 20342.8 kB | exit 0, 66169.6 kB / 20343.4 kB |
+| new tests | consent 7 passed (upstream code 3 failed / 4 passed); footer 14 passed (upstream code 6 failed / 8 passed) | see table in B |
+| `bun run test` | 168 files, 2132 tests passed (after the footer commit) | 172 files, 2125 tests passed |
+| `bun run build` | exit 0, 66178.8 kB / 20344.1 kB | exit 0, 66169.6 kB / 20343.4 kB |
 | `bun run i18n:sync` | exit 0, no file changed | exit 0, no file changed |
 | `go build` | exit 0 | exit 0 |
 
@@ -160,7 +173,7 @@ node shots7.mjs http://127.0.0.1:3303 <dir> fixes after en|zhCN     # fix/ui-lab
 node shots7.mjs http://127.0.0.1:3300 .fa-review fa                 # feat/fa-locale binary
 ```
 
-Playwright 1.56.1 (global), Chromium 141.0.7390.37 headless, 1440×900, light theme, UTC. The script counts the colours of every capture (every 4th pixel) and flags fewer than 16 as blank: every capture has 1305 or more colours.
+Playwright 1.56.1 (global), Chromium 141.0.7390.37 headless, 1440×900, light theme, UTC. The script counts the colours of every capture (every 4th pixel) and flags fewer than 16 as blank: every capture has 1259 or more colours.
 
 | Fix (page) | | before (`upstream/main`) | after |
 | --- | --- | --- | --- |
@@ -175,9 +188,14 @@ Playwright 1.56.1 (global), Chromium 141.0.7390.37 headless, 1440×900, light th
 | Delete invalid (`/redemption-codes`) | en | This will delete all used, disabled, and expired redemption codes. | identical |
 | | zh | 这将删除所有 已使用, 已禁用，和 已过期 兑换码。 | 这将删除所有已使用、已禁用和已过期的兑换码。 |
 
-Screenshots `85`–`89-*-{before,after}-{en,zhCN}.png`. Console errors in every run: a 401 from the pre-login session probe and `ERR_CERT_AUTHORITY_INVALID` for an external resource blocked by the sandbox proxy. `<html lang>` is `en` in all upstream runs (upstream keeps it fixed).
+| Terms footer, sign-in (`/sign-in`) | en | By clicking sign in, you agree to our User Agreement and Privacy Policy. | identical |
+| | zh | By clicking sign in, you agree to our User Agreement 和 Privacy Policy. | 点击登录即表示您同意我们的用户协议和隐私政策。 |
+| Terms footer, sign-up (`/sign-up`) | en | By creating an account, you agree to our User Agreement and Privacy Policy. | identical |
+| | zh | By creating an account, you agree to our User Agreement 和 Privacy Policy. | 创建账户即表示您同意我们的用户协议和隐私政策。 |
 
-Persian (feat binary): `80-sign-up-consent-rtl.png` («توافق‌نامۀ کاربری و سیاست حریم خصوصی را خوانده‌ام و می‌پذیرم.», `dir=rtl lang=fa`), `81-channels-rtl.png` (card view), `82-channel-edit-drawer-rtl.png` («ویرایش کانال Azure …»), `83-models-rtl.png`, `84-model-edit-rtl.png`. Same two console errors.
+Screenshots `85`–`91-*-{before,after}-{en,zhCN}.png` (footer: `node shots7.mjs <url> .fa-review footer before|after en|zhCN`, signed out; the `85-*-after-*` files were retaken on the follow-up binary, so the footer below the consent line is translated there too). Footer runs log only the 401. Console errors in every run: a 401 from the pre-login session probe and `ERR_CERT_AUTHORITY_INVALID` for an external resource blocked by the sandbox proxy. `<html lang>` is `en` in all upstream runs (upstream keeps it fixed).
+
+Persian (feat binary): `92-terms-footer-sign-in-rtl.png` («با کلیک روی «ورود»، توافق‌نامۀ کاربری و سیاست حریم خصوصی ما را می‌پذیرید.», `dir=rtl`), `93-terms-footer-sign-up-rtl.png` («با ساخت حساب کاربری، توافق‌نامۀ کاربری و سیاست حریم خصوصی ما را می‌پذیرید.»), `80-sign-up-consent-rtl.png` (retaken, footer now Persian) («توافق‌نامۀ کاربری و سیاست حریم خصوصی را خوانده‌ام و می‌پذیرم.», `dir=rtl lang=fa`), `81-channels-rtl.png` (card view), `82-channel-edit-drawer-rtl.png` («ویرایش کانال Azure …»), `83-models-rtl.png`, `84-model-edit-rtl.png`. Same two console errors.
 
 ## Remaining issues
 

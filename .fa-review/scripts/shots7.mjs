@@ -2,6 +2,9 @@
 // Usage: node shots7.mjs <base-url> <out-dir> <mode> [stage] [lang]
 //   fa:    Persian channels list, channel edit drawer, models list, model
 //          edit dialog, and the sign-up page with the legal consent
+//   footer: the terms footer below the sign-in and sign-up forms, signed
+//          out, saved as 90/91-terms-footer-<page>-<stage>-<lang>.png, or
+//          92/93-terms-footer-<page>-rtl.png when lang is fa
 //   fixes: the five upstream label fixes, saved as
 //          8N-<fix>-<stage>-<lang>.png (stage: before or after; lang: en or
 //          zhCN), and prints the text each one shows
@@ -230,6 +233,31 @@ if (mode === 'fixes') {
     `delete invalid dialog: «${clean(await page.getByRole('alertdialog').first().innerText())}»`
   )
   await shot(name(89, 'redemption-delete-invalid'))
+}
+
+if (mode === 'footer') {
+  await openPage()
+  console.log(`browser: Chromium ${browser.version()}`)
+  for (const [n, pagePath] of [
+    [90, 'sign-in'],
+    [91, 'sign-up'],
+  ]) {
+    await page.goto(`${base}/${pagePath}`)
+    await settle(1500)
+    const footer = page
+      .locator('p', { has: page.locator('a[href="/privacy-policy"]') })
+      .last()
+    await footer.waitFor({ timeout: 20000 })
+    await waitOpaque('form')
+    console.log(`${pagePath} footer: «${clean(await footer.innerText())}»`)
+    const info = await page.evaluate(() => document.documentElement.dir || 'ltr')
+    console.log(`${pagePath} dir: ${info}`)
+    const file =
+      lang === 'fa'
+        ? `${n + 2}-terms-footer-${pagePath}-rtl`
+        : `${n}-terms-footer-${pagePath}-${stage}-${lang}`
+    await shot(file)
+  }
 }
 
 console.log(`console errors: ${consoleErrors.length}`)

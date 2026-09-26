@@ -95,7 +95,9 @@ async function signIn() {
     .first()
     .fill('admin')
   await page.locator('input[type="password"]').first().fill(PASSWORD)
-  const consent = page.locator('#legal-consent')
+  // The legal consent checkbox is a Base UI control; its hidden input is not
+  // clickable, the visible role=checkbox element is.
+  const consent = page.getByRole('checkbox').first()
   if (await consent.count()) await consent.click()
   await page.locator('button[type="submit"]').first().click()
   await page.waitForURL((url) => !url.pathname.startsWith('/sign-in'), {

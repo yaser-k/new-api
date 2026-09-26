@@ -330,8 +330,7 @@ export function UserSubscriptionsDialog(props: Props) {
                           {formatTimestamp(sub.start_time, locale)}
                         </div>
                         <div title={formatGregorianTitle(sub.end_time, locale)}>
-                          {t('End')}:{' '}
-                          {formatTimestamp(sub.end_time, locale)}
+                          {t('End')}: {formatTimestamp(sub.end_time, locale)}
                         </div>
                       </div>
                     )
